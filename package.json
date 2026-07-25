@@ -3,17 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "JHAX.ai landing page — full SvelteKit port (backend /api server routes + frontend) of the FastAPI/React project. adapter-node, single deployable app.",
+  "description": "JHAX.ai landing page — fully static/serverless SvelteKit app. Google Places called from the browser; leads stored in Firebase Firestore. No backend database.",
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "node build",
     "check": "svelte-check --tsconfig ./tsconfig.json",
-    "parity": "tsx scripts/parity/run.mjs"
+    "parity": "tsx scripts/parity/run.mjs",
+    "export:leads": "node scripts/export-leads.mjs"
   },
   "devDependencies": {
-    "@sveltejs/adapter-node": "^5.2.9",
+    "@sveltejs/adapter-static": "^3.0.6",
+    "exceljs": "^4.4.0",
+    "firebase-admin": "^13.0.1",
     "@sveltejs/kit": "^2.8.3",
     "@sveltejs/vite-plugin-svelte": "^4.0.2",
     "autoprefixer": "^10.4.20",
@@ -27,11 +29,9 @@
     "vite": "^5.4.11"
   },
   "dependencies": {
-    "dotenv": "^17.4.2",
+    "firebase": "^11.0.2",
     "html2pdf.js": "^0.14.0",
     "lenis": "^1.3.25",
-    "lucide-svelte": "^0.460.0",
-    "postgres": "^3.4.5",
-    "zod": "^3.23.8"
+    "lucide-svelte": "^0.460.0"
   }
 }

@@ -1,16 +1,8 @@
 /**
- * Audit heuristics — faithful port of the ESTIMATE formulas in backend/server.py.
- *
- * These are transparent rules-of-thumb derived only from the two public signals
- * Google/OSM gives us: star rating and review count. They are returned under an
- * `estimated: true` block so the UI can label them as estimates, never as facts.
- *
- * Health score (0-100): 75% driven by rating quality, 25% by review volume.
- * Money lost / week: reputation leak (below 4.7 benchmark) + visibility leak
- * (below ~150 reviews), both anchored to ~$12k/week typical revenue.
- *
- * The rounding MUST match Python's built-in round() (round-half-to-even) so the
- * numbers are byte-identical to the original backend. See pyRound below.
+ * Audit heuristics — the ESTIMATE formulas, unchanged from the original FastAPI
+ * backend (server.py). Pure module (no env / platform imports) so it runs both in
+ * the browser and under the parity harness. Rounding matches Python's built-in
+ * round() (round-half-to-even) so numbers are byte-identical to the original.
  */
 
 export const BENCHMARK_RATING = 4.7;
@@ -20,23 +12,12 @@ export const VISIBILITY_REVIEW_FLOOR = 150;
 export const VISIBILITY_PENALTY = 0.03;
 
 /**
- * Replicate Python's built-in round() for floats: correctly-rounded, round-half-
- * to-even ("banker's rounding"). Operates on a faithful decimal expansion of the
- * IEEE-754 double (via toFixed(12)) so results match CPython bit-for-bit across
- * the domains this app uses.
- * @param {number} value
- * @param {number} [ndigits=0]
- * @returns {number}
+ * Replicate CPython's round() on a float: correctly-rounded, round-half-to-even.
+ * Operates on the exact IEEE-754 double (ties only at an exact .5).
+ * @param {number} value @param {number} [ndigits=0]
  */
 export function pyRound(value, ndigits = 0) {
 	if (!Number.isFinite(value)) return value;
-
-	// Operate on the EXACT IEEE-754 double (no decimal pre-rounding, which would
-	// turn values like 55.4999999999 into a false tie). A tie can only occur when
-	// the scaled fractional part is exactly 0.5, which — for the domains this app
-	// uses — happens only when the value is genuinely representable as n + 0.5,
-	// matching CPython. Non-tie values resolve to the unique nearest, identical to
-	// Python's round-to-nearest. Ties resolve to even.
 	const m = Math.pow(10, ndigits);
 	const scaled = value * m;
 	const floor = Math.floor(scaled);
@@ -85,10 +66,7 @@ export function estimateMoneyLostWeekly(rating, reviewCount) {
 	return pyRound(reputationLoss + visibilityLoss);
 }
 
-/**
- * @param {number} score
- * @returns {string}
- */
+/** @param {number} score */
 export function healthLabel(score) {
 	if (score >= 75) return 'Good';
 	if (score >= 50) return 'Needs work';

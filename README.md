@@ -1,63 +1,74 @@
-# JHAX.ai Landing Page — SvelteKit
+# JHAX.ai Landing Page — SvelteKit (static / serverless)
 
-A complete SvelteKit port of the original **FastAPI (Python) + React (CRA)** JHAX.ai
-landing page, with **100% feature parity**. Frontend and backend are now a single
-deployable **adapter-node** app: the former FastAPI endpoints live as SvelteKit
-`/api/*` server routes.
+A **fully static, serverless** SvelteKit port of the original FastAPI + React
+JHAX.ai landing page. There is **no backend server and no SQL database**:
 
-This is a brand-new project — the original in `../jhax_landing_page` is untouched.
+- **Free Audit** calls Google Places **from the browser** (Maps JavaScript API
+  Places library) and runs the "What JHAX Found" heuristics **client-side** — same
+  cards, same numbers as before.
+- **Leads** (both forms) are written straight to **Firebase Firestore** from the
+  browser (project `jhax-coo`).
 
-## Stack
-
-| Concern | Original | This port |
-|---|---|---|
-| Framework | React 19 + CRACO | SvelteKit 2 (Svelte 5 runes) |
-| Backend | FastAPI (Python) | SvelteKit server routes (`+server.js`) |
-| DB driver | SQLAlchemy async + asyncpg | postgres.js |
-| Icons | lucide-react | lucide-svelte |
-| Animation | framer-motion | Svelte transitions + `reveal` action + `motion.js` |
-| Smooth scroll | Lenis | Lenis (unchanged) |
-| PDF export | html2pdf.js | html2pdf.js (unchanged, client-side) |
-| Deploy | 2 services (Vercel + Render) | 1 Node app (adapter-node) |
+The build output in `build/` is plain static files — host it anywhere.
 
 ## Run
 
 ```bash
 npm install
-cp .env.example .env      # then fill DATABASE_URL etc.
-npm run dev               # dev server (http://localhost:5173)
-npm run build && npm start # production (node build)
+cp .env.example .env      # fill PUBLIC_* values (see below)
+npm run dev               # http://localhost:5173
+npm run build             # -> ./build (static SPA)
+npm run preview           # serve the static build locally
+npm run check             # svelte-check (0 errors, 0 warnings)
+npm run parity            # heuristics still byte-identical to the original Python
 ```
 
-### Scripts
-- `npm run dev` — dev server
-- `npm run build` — production build (adapter-node → `build/`)
-- `npm start` — run the production build (`node build`)
-- `npm run check` — `svelte-check` type-check (0 errors, 0 warnings)
-- `npm run parity` — **calculation parity test**: runs the ORIGINAL Python
-  heuristics against this port over 80k+ inputs and asserts byte-identical output
+## Environment (all `PUBLIC_`, inlined into the browser bundle)
 
-## Environment
+```
+PUBLIC_AUDIT_DATA_SOURCE=google        # or "osm" (free, no key)
+PUBLIC_GOOGLE_PLACES_API_KEY=...        # Maps JS API + Places API (New), referrer-restricted
+PUBLIC_FIREBASE_API_KEY=...
+PUBLIC_FIREBASE_AUTH_DOMAIN=jhax-coo.firebaseapp.com
+PUBLIC_FIREBASE_PROJECT_ID=jhax-coo
+PUBLIC_FIREBASE_APP_ID=...
+```
 
-Same variables as the original `backend/.env`:
+## One-time cloud setup
 
-- `DATABASE_URL` — Postgres connection (leads + status_checks tables auto-created)
-- `CORS_ORIGINS` — comma-separated allow-list, default `*`
-- `AUDIT_DATA_SOURCE` — `osm` (default, free) or `google`
-- `GOOGLE_PLACES_API_KEY` — required when `AUDIT_DATA_SOURCE=google`
-- `NOMINATIM_USER_AGENT` — optional OSM User-Agent override
+**Google Places key** (Google Cloud console): enable **Maps JavaScript API** +
+**Places API (New)** on the key, then restrict it to your site's HTTP referrers.
+(Places REST endpoints don't allow browser CORS — that's why we use the Maps JS
+library.)
 
-Only `/api/leads` and `/api/status` need a database. `/api/audit` does not.
+**Firestore** (Firebase console → project `jhax-coo`):
+1. Firestore Database → **Create database** (Production mode).
+2. Deploy the security rules in `firestore.rules`:
+   ```bash
+   firebase deploy --only firestore:rules
+   ```
+   Rules: the `leads` collection is **write-only** for clients (no read/update/
+   delete), with required-field validation to block empty/spam submissions.
 
-## API (parity with the FastAPI backend)
+## Deploy (simplest — fully static)
 
-| Method | Path | Behaviour |
-|---|---|---|
-| GET | `/api` | `{ "message": "JHAX.ai API" }` |
-| POST/GET | `/api/status` | create / list status checks |
-| POST/GET | `/api/leads` | capture / list leads (newest first) |
-| POST | `/api/audit` | free restaurant audit (provider + heuristics) |
+Because there's no server, any static host works (Netlify, Vercel, GitHub Pages,
+Cloud Storage, S3, …) — just serve `build/` with an SPA fallback to `index.html`.
 
-Error bodies use FastAPI's `{ "detail": ... }` shape.
+**Firebase Hosting** (same `jhax-coo` project, one command set):
+```bash
+npm run build
+firebase login
+firebase deploy --only hosting,firestore:rules
+```
+`firebase.json` already points hosting at `build/` with the SPA rewrite, and
+`.firebaserc` targets `jhax-coo`.
 
-See `MIGRATION.md` for the exhaustive file-by-file mapping and decisions.
+## Data model — Firestore `leads`
+
+Same fields the old `/api/leads` stored (nothing dropped):
+`email`, `source`, `business_name`, `person_name`, `phone`, `created_at`
+(`created_at` = Firestore server timestamp). `source` is `final_cta` (footer form)
+or `audit_report_download` (audit PDF gate).
+
+See `MIGRATION.md` for the full before/after mapping.

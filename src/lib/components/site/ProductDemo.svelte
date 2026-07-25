@@ -40,6 +40,29 @@
 		{ l: 'Staff efficiency', v: 82 }
 	];
 	const dashQuickAsks = ['Why is money down?', 'Who are my regulars?', 'Do I have too many staff?'];
+	const dashAnswers = {
+		'Why is money down?': {
+			head: 'Money is down 38.8% — it&apos;s not fewer people coming in, it&apos;s <span class="text-orange">your regulars stopped coming back</span>.',
+			body: '63 of your best customers haven&apos;t returned in 30 days. Bringing back 20% of them recovers ~<span class="text-cream">$368</span> this week. One tap sends the win-back message to WhatsApp + SMS.'
+		},
+		'Who are my regulars?': {
+			head: 'Your top 20 regulars drive <span class="text-orange">34% of your revenue</span> — and 3 are slipping.',
+			body: 'Quinn Reyes leads at <span class="text-cream">$1,141</span> across 9 visits. 3 regulars haven&apos;t been in for 21+ days — reach out before they&apos;re gone for good.'
+		},
+		'Do I have too many staff?': {
+			head: 'Yes — <span class="text-orange">Tuesday lunch is 42% overstaffed</span>, every single week.',
+			body: 'Trimming 1 cook + 1 server on Tue 11–2 saves <span class="text-cream">$340/week</span> ($17,680/yr) with zero impact on service.'
+		}
+	};
+	let activeAsk = $state('Why is money down?');
+	let asking = $state(false);
+	let askTimer;
+	function askQuestion(q) {
+		activeAsk = q;
+		asking = true;
+		clearTimeout(askTimer);
+		askTimer = setTimeout(() => (asking = false), 650);
+	}
 
 	const custStats = [
 		{ l: 'Total Customers', v: '100', c: '#F5F2ED' },
@@ -231,11 +254,17 @@
 								</div>
 
 								<div class="flex flex-wrap gap-2">
-									{#each dashQuickAsks as q (q)}
+									{#each dashQuickAsks as q, qi (q)}
+										{@const on = activeAsk === q}
 										<button
 											type="button"
-											class="px-3 py-1.5 rounded-full text-[12px] text-muted-warm hover:text-cream transition-colors"
-											style="border: 1px solid #1E1E1E; background: #0d0d0d;"
+											onclick={() => askQuestion(q)}
+											data-testid="dash-quickask-{qi}"
+											aria-pressed={on}
+											class="px-3 py-1.5 rounded-full text-[12px] transition-colors"
+											style="border: 1px solid {on ? 'rgba(232,80,10,0.4)' : '#1E1E1E'}; background: {on
+												? 'rgba(232,80,10,0.12)'
+												: '#0d0d0d'}; color: {on ? '#FF6B2B' : '#6B6866'};"
 										>
 											{q}
 										</button>
@@ -243,18 +272,37 @@
 								</div>
 
 								<div class="rounded-xl p-5" style="background: #0a0a0a; border: 1px solid #1E1E1E;">
-									<div class="font-mono text-[10px] uppercase tracking-[0.24em] text-orange mb-2">
-										JHAX · Live answer
+									<div class="flex items-center justify-between mb-2">
+										<div class="font-mono text-[10px] uppercase tracking-[0.24em] text-orange">
+											JHAX · Live answer
+										</div>
+										{#if asking}
+											<div
+												class="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-warm animate-pulse"
+												data-testid="dash-answer-thinking"
+											>
+												Thinking…
+											</div>
+										{/if}
 									</div>
-									<div class="text-cream text-[18px] md:text-[22px] font-display" style="letter-spacing: -0.02em;">
-										Money is down 38.8% — it&apos;s not fewer people coming in, it&apos;s
-										<span class="text-orange"> your regulars stopped coming back</span>.
-									</div>
-									<div class="text-muted-warm mt-2 text-[15px] leading-relaxed">
-										63 of your best customers haven&apos;t returned in 30 days. Bringing back 20% of them
-										recovers ~<span class="text-cream">$368</span> this week. One tap sends the win-back
-										message to WhatsApp + SMS.
-									</div>
+									{#if asking}
+										<div class="space-y-2 animate-pulse" data-testid="dash-answer-loading">
+											<div style="height: 22px; width: 80%; background: #141414; border-radius: 6px;"></div>
+											<div style="height: 14px; width: 96%; background: #121212; border-radius: 6px;"></div>
+											<div style="height: 14px; width: 68%; background: #121212; border-radius: 6px;"></div>
+										</div>
+									{:else}
+										<div
+											class="text-cream text-[18px] md:text-[22px] font-display"
+											style="letter-spacing: -0.02em;"
+											data-testid="dash-answer-head"
+										>
+											{@html dashAnswers[activeAsk].head}
+										</div>
+										<div class="text-muted-warm mt-2 text-[15px] leading-relaxed">
+											{@html dashAnswers[activeAsk].body}
+										</div>
+									{/if}
 								</div>
 							</div>
 						{:else if active === 'ask'}

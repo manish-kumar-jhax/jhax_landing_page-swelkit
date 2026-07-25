@@ -113,13 +113,13 @@
 		class="max-w-[1280px] mx-auto mt-14 px-6 md:px-10"
 	>
 		<div
-			class="rounded-full flex flex-wrap items-center justify-between gap-y-2 gap-x-6 px-5 md:px-6 py-3"
+			class="rounded-2xl sm:rounded-full flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-x-6 px-5 md:px-6 py-4 sm:py-3"
 			style="background: #0a0a0a; border: 1px solid rgba(232,80,10,0.28);"
 			data-testid="proof-bottom-strip"
 		>
-			<div class="flex items-center gap-3">
+			<div class="flex items-start gap-3 min-w-0">
 				<span
-					class="w-1.5 h-1.5 rounded-full dot-pulse flex-shrink-0"
+					class="w-1.5 h-1.5 rounded-full dot-pulse flex-shrink-0 mt-[7px]"
 					style="background: #E8500A;"
 				></span>
 				<span class="text-[12.5px] md:text-[13px] text-muted-warm" style="line-height: 1.5;">
@@ -128,7 +128,7 @@
 					Numbers update every 30 seconds. Nothing is staged.
 				</span>
 			</div>
-			<div class="font-mono text-[10.5px] uppercase tracking-[0.24em]" style="color: #FF6B2B;">
+			<div class="font-mono text-[10.5px] uppercase tracking-[0.24em] sm:flex-shrink-0" style="color: #FF6B2B;">
 				Captured · July 2026
 			</div>
 		</div>

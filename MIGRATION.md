@@ -85,3 +85,28 @@ New helper components/modules created for the port:
   keeps `google` to match the original.
 - SSR is disabled (`+layout.js` `ssr = false`) to match the original CRA SPA, since
   the sections are animation/DOM-driven.
+
+## Architecture change: fully static / serverless (no database)
+
+A later change removed the backend entirely — the app is now a static SPA:
+
+| Feature | Was (server) | Now (client) |
+|---|---|---|
+| Free Audit | `POST /api/audit` (server calls Google/OSM + heuristics) | `src/lib/audit/*` runs in the browser: Google Places via the **Maps JS Places library** (REST has no browser CORS), OSM via Nominatim; heuristics client-side |
+| Lead capture | `POST /api/leads` → Postgres | `src/lib/leads.js` → **Firebase Firestore** `leads` collection |
+| Insight cards | `buildFindings()` (client, unchanged) | `buildFindings()` (client, unchanged) |
+| Adapter | `adapter-node` (+ Cloud SQL) | `adapter-static` (SPA, `build/`) |
+
+Removed: `src/lib/server/*` (db, providers, heuristics, http), `src/routes/api/*`,
+`src/hooks.server.js`, `src/lib/api.js`, `Dockerfile`/`.dockerignore`, and the
+`postgres`/`zod`/`dotenv` deps. Added: `firebase`, `@sveltejs/adapter-static`,
+`firestore.rules`, `firebase.json`, `.firebaserc`.
+
+Parity note: the heuristics moved to `src/lib/audit/heuristics.js` and seeded
+metrics to `src/lib/audit/seeded.js` (now async, using Web Crypto so it runs in the
+browser). `npm run parity` still confirms byte-identical output vs. the original
+Python — the numbers on the cards are unchanged.
+
+The `/api/audit` response object is reproduced exactly by `src/lib/audit/index.js`,
+so `buildReportFromApi()` / `buildFindings()` — and therefore every KPI, the health
+dial, and the "Fix This"/"Opportunity" cards — behave identically.

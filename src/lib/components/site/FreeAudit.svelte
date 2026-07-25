@@ -1,4 +1,5 @@
 <script>
+	import { onMount } from 'svelte';
 	import { fly, fade } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import {
@@ -19,7 +20,9 @@
 		Mail,
 		Phone
 	} from 'lucide-svelte';
-	import { apiPost } from '@/api.js';
+	import { runAudit as runAuditRequest } from '@/audit/index.js';
+	import { saveLead } from '@/leads.js';
+	import { scrollToEl } from '@/lenis.js';
 
 	// Kept in sync with the backend heuristics (audit.js).
 	const BENCHMARK_RATING = 4.7;
@@ -254,6 +257,7 @@
 	let report = $state(null);
 	let error = $state('');
 	let pdfState = $state('idle'); // idle | working
+	let pdfMsg = $state(''); // user-visible download result / error
 	let showSignup = $state(false);
 	let signedUp = $state(false);
 	let signup = $state({ businessName: '', personName: '', email: '', phone: '' });
@@ -265,6 +269,36 @@
 		timeouts.forEach(clearTimeout);
 		timeouts = [];
 	};
+
+	// One-time signup gate — remembered ACROSS browser sessions via localStorage.
+	// Once a user has signed up (any restaurant, any time), the form never shows
+	// again on this device; downloads go straight through. `signup` fields are also
+	// restored so the (now-hidden) form stays prefilled.
+	const SIGNUP_KEY = 'jhax_audit_signup';
+
+	function persistSignup(details) {
+		try {
+			localStorage.setItem(SIGNUP_KEY, JSON.stringify({ signedUp: true, ...details }));
+		} catch {
+			/* storage disabled / private mode — non-fatal */
+		}
+	}
+
+	onMount(() => {
+		try {
+			const saved = JSON.parse(localStorage.getItem(SIGNUP_KEY) || 'null');
+			if (saved?.signedUp) {
+				signedUp = true;
+				signup.businessName = saved.businessName || '';
+				signup.personName = saved.personName || '';
+				signup.email = saved.email || '';
+				signup.phone = saved.phone || '';
+			}
+		} catch {
+			/* ignore malformed/blocked storage */
+		}
+		return () => clearTimers();
+	});
 
 	const parseQuery = (q) => {
 		const cleaned = (q || '').replace(/https?:\/\/\S+/g, '').trim();
@@ -289,7 +323,7 @@
 		});
 
 		try {
-			const data = await apiPost('/audit', { name, city });
+			const data = await runAuditRequest({ name, city });
 			clearTimers();
 			stepIndex = LOADING_STEPS.length - 1;
 			report = buildReportFromApi(data);
@@ -329,6 +363,13 @@
 		report = null;
 		error = '';
 		query = '';
+		pdfMsg = '';
+		// Scroll back UP to the audit search section. Must go through Lenis — native
+		// scrollIntoView is overridden by Lenis's RAF loop (worked neither on phone
+		// nor desktop before). rAF lets the report unmount first so the target is right.
+		if (typeof window !== 'undefined') {
+			requestAnimationFrame(() => scrollToEl('audit', -80));
+		}
 	}
 
 	const slugify = (s) =>
@@ -340,6 +381,7 @@
 	async function downloadPdf() {
 		if (!report || pdfState === 'working') return;
 		pdfState = 'working';
+		pdfMsg = '';
 		let holder = null;
 		try {
 			if (document.fonts && document.fonts.ready) {
@@ -413,9 +455,11 @@
 					}
 				})
 				.save();
+			pdfMsg = 'Report downloaded to this device — check your downloads folder.';
 		} catch (err) {
 			// eslint-disable-next-line no-console
 			console.error('PDF export failed', err);
+			pdfMsg = "Couldn't generate the report — please try again.";
 		} finally {
 			if (holder && holder.parentNode) holder.parentNode.removeChild(holder);
 			pdfState = 'idle';
@@ -456,7 +500,7 @@
 		signupState = 'submitting';
 		signupError = '';
 		try {
-			await apiPost('/leads', {
+			await saveLead({
 				email,
 				business_name: businessName,
 				person_name: personName,
@@ -464,10 +508,13 @@
 				source: 'audit_report_download'
 			});
 			signedUp = true;
+			persistSignup({ businessName, personName, email, phone });
 			showSignup = false;
 			signupState = 'idle';
 			downloadPdf();
-		} catch {
+		} catch (err) {
+			// eslint-disable-next-line no-console
+			console.error('[leads] Firestore write failed:', err?.code || '', err?.message || err);
 			signupState = 'idle';
 			signupError = 'Something went wrong. Please try again.';
 		}
@@ -524,7 +571,7 @@
 			class="mt-9 mx-auto flex flex-col sm:flex-row gap-3 max-w-[720px]"
 		>
 			<div
-				class="flex-1 flex items-center gap-2 rounded-full px-5"
+				class="flex-1 min-w-0 w-full flex items-center gap-2 rounded-full px-5"
 				style="background: #0d0d0d; border: 1px solid #1E1E1E; height: 56px;"
 			>
 				<Search size={16} class="text-muted-warm flex-shrink-0" />
@@ -533,7 +580,7 @@
 					bind:value={query}
 					placeholder="Restaurant name and city (e.g. Joe's Pizza, New York)"
 					data-testid="audit-input"
-					class="flex-1 bg-transparent outline-none text-cream placeholder:text-muted-warm"
+					class="flex-1 min-w-0 w-full bg-transparent outline-none text-cream placeholder:text-muted-warm"
 					style="font-size: 15px; font-weight: 500;"
 					disabled={state === 'loading'}
 				/>
@@ -687,30 +734,38 @@
 					style="background: linear-gradient(90deg, transparent, #E8500A 30%, #FF6B2B 60%, transparent);"
 				></div>
 				<div class="p-6 md:p-8">
-					<!-- Head -->
-					<div class="flex flex-wrap items-start justify-between gap-6">
-						<div class="flex items-center gap-5 flex-1 min-w-[260px]">
+					<!-- Head — stacks vertically on mobile so labels never overlap and the
+					     name has full width to wrap normally at word boundaries. -->
+					<div
+						class="flex flex-col sm:flex-row sm:flex-wrap sm:items-start sm:justify-between gap-5 sm:gap-6"
+					>
+						<div
+							class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-5 sm:flex-1 min-w-0 sm:min-w-[260px]"
+						>
 							{#await import('./AuditHealthDial.svelte') then { default: AuditHealthDial }}
 								<AuditHealthDial value={report.healthScore} />
 							{/await}
-							<div>
+							<div class="min-w-0 w-full">
 								<div class="font-mono text-[10px] uppercase tracking-[0.24em] text-orange">
 									Free audit · Restaurant health
 								</div>
 								<div
 									class="font-display text-cream mt-1"
-									style="font-size: clamp(24px, 3vw, 34px); letter-spacing: -0.03em; line-height: 1.05;"
+									style="font-size: clamp(22px, 3vw, 34px); letter-spacing: -0.03em; line-height: 1.08; overflow-wrap: break-word;"
 									data-testid="audit-report-name"
 								>
 									{report.name}
 								</div>
-								<div class="text-muted-warm text-[13px] mt-1">
+								<div
+									class="text-muted-warm text-[13px] mt-1"
+									style="overflow-wrap: break-word;"
+								>
 									{report.location} · From public info only
 								</div>
 							</div>
 						</div>
 
-						<div class="text-right">
+						<div class="text-left sm:text-right">
 							<div class="font-mono text-[10px] uppercase tracking-[0.24em] text-ghost">
 								Estimated money lost
 							</div>
@@ -888,14 +943,14 @@
 								regular, every shift, every dish.
 							</div>
 						</div>
-						<div class="flex gap-3">
+						<div class="flex flex-col sm:flex-row flex-wrap gap-2.5 w-full sm:w-auto">
 							<button
 								type="button"
 								onclick={handleDownloadClick}
 								disabled={pdfState === 'working'}
 								data-testid="audit-download"
 								data-html2canvas-ignore="true"
-								class="inline-flex items-center gap-2 rounded-full text-[13px] font-semibold"
+								class="inline-flex items-center justify-center gap-2 rounded-full text-[13px] font-semibold w-full sm:w-auto"
 								style="background: #0a0a0a; border: 1px solid rgba(232,80,10,0.45); color: #FF6B2B; padding: 12px 18px; opacity: {pdfState ===
 									'working'
 									? 0.6
@@ -911,7 +966,7 @@
 								type="button"
 								onclick={reset}
 								data-testid="audit-run-another"
-								class="rounded-full text-[13px]"
+								class="rounded-full text-[13px] w-full sm:w-auto text-center"
 								style="background: #0a0a0a; border: 1px solid #1E1E1E; color: #6B6866; padding: 12px 18px;"
 							>
 								Run another
@@ -919,12 +974,21 @@
 							<a
 								href="#book-demo"
 								data-testid="audit-cta-book"
-								class="inline-flex items-center gap-2 rounded-full text-[14px] font-semibold"
+								class="inline-flex items-center justify-center gap-2 rounded-full text-[14px] font-semibold w-full sm:w-auto"
 								style="background: #E8500A; color: #fff; padding: 12px 22px; box-shadow: 0 16px 40px -14px rgba(232,80,10,0.6);"
 							>
 								Connect your Square <ArrowRight size={14} />
 							</a>
 						</div>
+						{#if pdfMsg}
+							<div
+								class="basis-full font-mono text-[11px] uppercase tracking-[0.16em] mt-1"
+								style="color: {pdfMsg.startsWith('Couldn') ? '#F87171' : '#22C55E'};"
+								data-testid="audit-pdf-msg"
+							>
+								{pdfMsg}
+							</div>
+						{/if}
 					</div>
 				</div>
 			</div>
@@ -989,7 +1053,7 @@
 						Get your full report
 					</h3>
 					<p class="text-muted-warm text-[13.5px] mt-2" style="line-height: 1.5;">
-						Tell us where to send it — your PDF downloads right away.
+						Enter your details and your full PDF report downloads to this device right away.
 					</p>
 
 					<form onsubmit={submitSignup} class="mt-5 space-y-3" data-testid="audit-signup-form">
@@ -1000,7 +1064,7 @@
 									{field.label}
 								</label>
 								<div
-									class="flex items-center gap-2 mt-1 rounded-lg px-3"
+									class="flex items-center gap-2 mt-1 rounded-lg px-3 min-w-0"
 									style="background: #0a0a0a; border: 1px solid #1E1E1E; height: 44px;"
 								>
 									<Icon size={14} class="text-muted-warm flex-shrink-0" />
@@ -1012,7 +1076,7 @@
 										placeholder={field.placeholder}
 										disabled={signupState === 'submitting'}
 										data-testid="audit-{field.testid}"
-										class="flex-1 bg-transparent outline-none text-cream placeholder:text-muted-warm"
+										class="flex-1 min-w-0 w-full bg-transparent outline-none text-cream placeholder:text-muted-warm"
 										style="font-size: 14px;"
 									/>
 								</div>

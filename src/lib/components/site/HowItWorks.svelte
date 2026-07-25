@@ -36,16 +36,19 @@
 					delay={i * 0.12}
 					amount={0.2}
 					duration={0.7}
-					class="relative rounded-2xl p-7 md:p-8 overflow-hidden"
+					class="relative rounded-2xl p-7 md:p-8"
 					style="background: linear-gradient(180deg, #0e0e0e 0%, #0a0a0a 100%); border: 1px solid #1E1E1E;"
 					testid="step-{s.n}"
 				>
-					<div
-						aria-hidden="true"
-						class="absolute -right-4 -top-8 font-display pointer-events-none select-none"
-						style="font-size: 220px; line-height: 1; color: rgba(232,80,10,0.06); letter-spacing: -0.06em;"
-					>
-						{s.n}
+					<!-- Clip ONLY the huge watermark number, so the connector arrow isn't clipped. -->
+					<div class="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+						<div
+							aria-hidden="true"
+							class="absolute -right-4 -top-8 font-display select-none"
+							style="font-size: 220px; line-height: 1; color: rgba(232,80,10,0.06); letter-spacing: -0.06em;"
+						>
+							{s.n}
+						</div>
 					</div>
 
 					<div class="relative">

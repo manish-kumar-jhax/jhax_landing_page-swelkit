@@ -1,13 +1,35 @@
 <script>
 	import { Check } from 'lucide-svelte';
 	import Reveal from './Reveal.svelte';
-	import { apiPost } from '@/api.js';
+	import { saveLead } from '@/leads.js';
 
 	let email = $state('');
 	let status = $state('idle'); // idle | loading | success | error
 	let message = $state('');
 
 	const validate = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+
+	// Remember emails submitted from THIS browser so re-submitting the same address
+	// shows a friendly "already on our list" message instead of creating a duplicate
+	// lead. (Firestore rules block clients from reading leads, so cross-device dedup
+	// isn't possible without a backend — this handles the common repeat-submit case.)
+	const SUBMITTED_KEY = 'jhax_lead_emails';
+	function submittedEmails() {
+		try {
+			return new Set(JSON.parse(localStorage.getItem(SUBMITTED_KEY) || '[]'));
+		} catch {
+			return new Set();
+		}
+	}
+	function rememberEmail(e) {
+		try {
+			const s = submittedEmails();
+			s.add(e);
+			localStorage.setItem(SUBMITTED_KEY, JSON.stringify([...s]));
+		} catch {
+			/* storage disabled / private mode — non-fatal */
+		}
+	}
 
 	async function submit(e) {
 		e?.preventDefault();
@@ -16,9 +38,21 @@
 			message = 'Please enter a valid email';
 			return;
 		}
+		const norm = email.trim().toLowerCase();
+		if (submittedEmails().has(norm)) {
+			status = 'success';
+			message = "You're already on our list! We'll be in touch within 24 hours";
+			email = '';
+			setTimeout(() => {
+				status = 'idle';
+				message = '';
+			}, 4000);
+			return;
+		}
 		status = 'loading';
 		try {
-			await apiPost('/leads', { email, source: 'final_cta' });
+			await saveLead({ email, source: 'final_cta' });
+			rememberEmail(norm);
 			status = 'success';
 			message = "We'll be in touch within 24 hours";
 			email = '';
@@ -26,7 +60,9 @@
 				status = 'idle';
 				message = '';
 			}, 4000);
-		} catch {
+		} catch (err) {
+			// eslint-disable-next-line no-console
+			console.error('[leads] Firestore write failed:', err?.code || '', err?.message || err);
 			status = 'error';
 			message = 'Something went wrong. Try again.';
 		}

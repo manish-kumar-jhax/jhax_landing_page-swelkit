@@ -8,8 +8,8 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
-import { estimateHealthScore, estimateMoneyLostWeekly } from '../../src/lib/server/audit.js';
-import { seededMetrics } from '../../src/lib/server/seeded.js';
+import { estimateHealthScore, estimateMoneyLostWeekly } from '../../src/lib/audit/heuristics.js';
+import { seededMetrics } from '../../src/lib/audit/seeded.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const pyScript = resolve(here, 'py_ref.py');
@@ -48,7 +48,7 @@ for (const row of ref.health_money) {
 }
 
 for (const row of ref.seeded) {
-	const [rating, reviewCount] = seededMetrics(row.key);
+	const [rating, reviewCount] = await seededMetrics(row.key);
 	checked += 2;
 	if (rating !== row.rating) {
 		mismatches.push(`seeded.rating(key=${JSON.stringify(row.key)}) JS=${rating} PY=${row.rating}`);

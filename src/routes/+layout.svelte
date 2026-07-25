@@ -1,6 +1,7 @@
 <script>
 	import '../app.css';
 	import { onMount } from 'svelte';
+	import { lenisStore } from '@/lenis.js';
 
 	let { children } = $props();
 
@@ -17,6 +18,7 @@
 				smoothWheel: true,
 				easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
 			});
+			lenisStore.current = lenis; // expose for programmatic scrolls (e.g. "Run another")
 			const loop = (time) => {
 				lenis.raf(time);
 				raf = requestAnimationFrame(loop);
@@ -28,6 +30,7 @@
 			destroyed = true;
 			if (raf) cancelAnimationFrame(raf);
 			lenis?.destroy();
+			lenisStore.current = null;
 		};
 	});
 </script>
