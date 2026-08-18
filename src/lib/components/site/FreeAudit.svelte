@@ -262,13 +262,26 @@
 	let signedUp = $state(false);
 	let signup = $state({ businessName: '', personName: '', email: '', phone: '' });
 	let signupState = $state('idle'); // idle | submitting
-	let signupError = $state('');
+	let signupError = $state(''); // submit-level failure (network / Firestore)
+	let fieldErrors = $state({ businessName: '', personName: '', email: '', phone: '' });
 
 	let timeouts = [];
 	const clearTimers = () => {
 		timeouts.forEach(clearTimeout);
 		timeouts = [];
 	};
+
+	// The download result strip auto-hides after 5s. Kept on its own timer (not in
+	// `timeouts`) so clearTimers() — which belongs to the loading steps — can't
+	// leave a stale message pinned on screen.
+	const PDF_MSG_TTL = 5000;
+	let pdfMsgTimer = null;
+	function setPdfMsg(msg) {
+		clearTimeout(pdfMsgTimer);
+		pdfMsgTimer = null;
+		pdfMsg = msg;
+		if (msg) pdfMsgTimer = setTimeout(() => (pdfMsg = ''), PDF_MSG_TTL);
+	}
 
 	// One-time signup gate — remembered ACROSS browser sessions via localStorage.
 	// Once a user has signed up (any restaurant, any time), the form never shows
@@ -297,7 +310,10 @@
 		} catch {
 			/* ignore malformed/blocked storage */
 		}
-		return () => clearTimers();
+		return () => {
+			clearTimers();
+			clearTimeout(pdfMsgTimer);
+		};
 	});
 
 	const parseQuery = (q) => {
@@ -315,6 +331,9 @@
 		if (display !== undefined) query = display;
 		error = '';
 		report = null;
+		// A fresh search starts clean — the previous report's download message must
+		// never carry over onto a different restaurant.
+		setPdfMsg('');
 		state = 'loading';
 		stepIndex = 0;
 		LOADING_STEPS.forEach((_, i) => {
@@ -363,7 +382,7 @@
 		report = null;
 		error = '';
 		query = '';
-		pdfMsg = '';
+		setPdfMsg('');
 		// Scroll back UP to the audit search section. Must go through Lenis — native
 		// scrollIntoView is overridden by Lenis's RAF loop (worked neither on phone
 		// nor desktop before). rAF lets the report unmount first so the target is right.
@@ -381,7 +400,7 @@
 	async function downloadPdf() {
 		if (!report || pdfState === 'working') return;
 		pdfState = 'working';
-		pdfMsg = '';
+		setPdfMsg('');
 		let holder = null;
 		try {
 			if (document.fonts && document.fonts.ready) {
@@ -455,11 +474,11 @@
 					}
 				})
 				.save();
-			pdfMsg = 'Report downloaded to this device — check your downloads folder.';
+			setPdfMsg('Report downloaded to this device — check your downloads folder.');
 		} catch (err) {
 			// eslint-disable-next-line no-console
 			console.error('PDF export failed', err);
-			pdfMsg = "Couldn't generate the report — please try again.";
+			setPdfMsg("Couldn't generate the report — please try again.");
 		} finally {
 			if (holder && holder.parentNode) holder.parentNode.removeChild(holder);
 			pdfState = 'idle';
@@ -472,28 +491,94 @@
 			return;
 		}
 		signupError = '';
+		fieldErrors = { businessName: '', personName: '', email: '', phone: '' };
 		showSignup = true;
 	}
 
 	const validEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
+	// ---------- Signup form validation ----------
+	// Rules: business name 2–100 chars, your name 2–50 chars, valid email,
+	// phone exactly 10 digits (optional — blank is allowed, partial is not).
+	const SIGNUP_LIMITS = {
+		businessName: { min: 2, max: 100 },
+		personName: { min: 2, max: 50 },
+		email: { max: 254 },
+		phone: { digits: 10 }
+	};
+
+	const digitsOnly = (v) => (v || '').replace(/\D/g, '');
+
+	/** @returns {string} error message, or '' when the field is valid */
+	function validateField(key, raw) {
+		const value = (raw ?? '').trim();
+
+		if (key === 'businessName') {
+			const { min, max } = SIGNUP_LIMITS.businessName;
+			if (!value) return 'Business name is required.';
+			if (value.length < min) return `Business name must be at least ${min} characters.`;
+			if (value.length > max) return `Business name must be ${max} characters or less.`;
+			return '';
+		}
+
+		if (key === 'personName') {
+			const { min, max } = SIGNUP_LIMITS.personName;
+			if (!value) return 'Your name is required.';
+			if (value.length < min) return `Your name must be at least ${min} characters.`;
+			if (value.length > max) return `Your name must be ${max} characters or less.`;
+			return '';
+		}
+
+		if (key === 'email') {
+			if (!value) return 'Email is required.';
+			if (value.length > SIGNUP_LIMITS.email.max) return 'That email address is too long.';
+			if (!validEmail(value)) return 'Please enter a valid email address (e.g. you@restaurant.com).';
+			return '';
+		}
+
+		if (key === 'phone') {
+			if (!value) return ''; // optional
+			const digits = digitsOnly(value);
+			if (digits.length !== SIGNUP_LIMITS.phone.digits || digits !== value) {
+				return `Phone must be exactly ${SIGNUP_LIMITS.phone.digits} digits.`;
+			}
+			return '';
+		}
+
+		return '';
+	}
+
+	function validateSignup() {
+		const next = {
+			businessName: validateField('businessName', signup.businessName),
+			personName: validateField('personName', signup.personName),
+			email: validateField('email', signup.email),
+			phone: validateField('phone', signup.phone)
+		};
+		fieldErrors = next;
+		return Object.values(next).every((m) => !m);
+	}
+
+	// Live-clear a field's error once the user has corrected it, so the message
+	// disappears as they type instead of only on the next submit.
+	function onSignupInput(key, raw) {
+		const value = key === 'phone' ? digitsOnly(raw).slice(0, SIGNUP_LIMITS.phone.digits) : raw;
+		signup[key] = value;
+		if (fieldErrors[key] && !validateField(key, value)) fieldErrors[key] = '';
+		signupError = '';
+	}
+
 	async function submitSignup(e) {
 		e?.preventDefault?.();
+		if (signupState === 'submitting') return;
+
 		const businessName = signup.businessName.trim();
 		const personName = signup.personName.trim();
 		const email = signup.email.trim();
 		const phone = signup.phone.trim();
 
-		if (!businessName || !personName || !email) {
-			signupError = 'Please fill in business name, your name, and email.';
-			return;
-		}
-		if (!validEmail(email)) {
-			signupError = 'Please enter a valid email address.';
-			return;
-		}
-		if (phone && phone.replace(/\D/g, '').length < 7) {
-			signupError = 'Please enter a valid phone number, or leave it blank.';
+		if (!validateSignup()) {
+			signupError = '';
 			return;
 		}
 
@@ -523,10 +608,10 @@
 	let totalImpact = $derived(report ? report.moneyLost : 0);
 
 	const signupFields = [
-		{ key: 'businessName', label: 'Business name', placeholder: 'e.g. The Corner Bistro', Icon: Building2, type: 'text', testid: 'signup-business' },
-		{ key: 'personName', label: 'Your name', placeholder: 'e.g. Maria Lopez', Icon: User, type: 'text', testid: 'signup-name' },
-		{ key: 'email', label: 'Email', placeholder: 'you@restaurant.com', Icon: Mail, type: 'email', testid: 'signup-email' },
-		{ key: 'phone', label: 'Phone (optional)', placeholder: '(555) 123-4567', Icon: Phone, type: 'tel', testid: 'signup-phone' }
+		{ key: 'businessName', label: 'Business name', placeholder: 'e.g. The Corner Bistro', Icon: Building2, type: 'text', testid: 'signup-business', maxlength: SIGNUP_LIMITS.businessName.max, autocomplete: 'organization' },
+		{ key: 'personName', label: 'Your name', placeholder: 'e.g. Maria Lopez', Icon: User, type: 'text', testid: 'signup-name', maxlength: SIGNUP_LIMITS.personName.max, autocomplete: 'name' },
+		{ key: 'email', label: 'Email', placeholder: 'you@restaurant.com', Icon: Mail, type: 'email', testid: 'signup-email', maxlength: SIGNUP_LIMITS.email.max, autocomplete: 'email' },
+		{ key: 'phone', label: 'Phone (optional)', placeholder: '5551234567', Icon: Phone, type: 'tel', testid: 'signup-phone', maxlength: SIGNUP_LIMITS.phone.digits, inputmode: 'numeric', autocomplete: 'tel' }
 	];
 
 	const exSlug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -982,6 +1067,7 @@
 						</div>
 						{#if pdfMsg}
 							<div
+								transition:fade={{ duration: 300 }}
 								class="basis-full font-mono text-[11px] uppercase tracking-[0.16em] mt-1"
 								style="color: {pdfMsg.startsWith('Couldn') ? '#F87171' : '#22C55E'};"
 								data-testid="audit-pdf-msg"
@@ -1056,30 +1142,49 @@
 						Enter your details and your full PDF report downloads to this device right away.
 					</p>
 
-					<form onsubmit={submitSignup} class="mt-5 space-y-3" data-testid="audit-signup-form">
+					<!-- novalidate: we show our own inline messages instead of the browser's
+					     native tooltips, which would otherwise block submit on type="email". -->
+					<form onsubmit={submitSignup} novalidate class="mt-5 space-y-3" data-testid="audit-signup-form">
 						{#each signupFields as field (field.key)}
 							{@const Icon = field.Icon}
+							{@const err = fieldErrors[field.key]}
 							<div>
 								<label class="font-mono text-[9px] uppercase tracking-[0.18em] text-ghost" for="audit-{field.testid}">
 									{field.label}
 								</label>
 								<div
 									class="flex items-center gap-2 mt-1 rounded-lg px-3 min-w-0"
-									style="background: #0a0a0a; border: 1px solid #1E1E1E; height: 44px;"
+									style="background: #0a0a0a; border: 1px solid {err ? 'rgba(220,38,38,0.55)' : '#1E1E1E'}; height: 44px; transition: border-color .2s;"
 								>
-									<Icon size={14} class="text-muted-warm flex-shrink-0" />
+									<Icon size={14} color={err ? '#F87171' : undefined} class="text-muted-warm flex-shrink-0" />
 									<input
 										id="audit-{field.testid}"
 										type={field.type}
 										value={signup[field.key]}
-										oninput={(e) => (signup[field.key] = e.currentTarget.value)}
+										oninput={(e) => onSignupInput(field.key, e.currentTarget.value)}
+										onblur={() => (fieldErrors[field.key] = validateField(field.key, signup[field.key]))}
 										placeholder={field.placeholder}
 										disabled={signupState === 'submitting'}
+										maxlength={field.maxlength}
+										inputmode={field.inputmode}
+										autocomplete={field.autocomplete}
+										aria-invalid={err ? 'true' : 'false'}
+										aria-describedby={err ? `audit-${field.testid}-error` : undefined}
 										data-testid="audit-{field.testid}"
 										class="flex-1 min-w-0 w-full bg-transparent outline-none text-cream placeholder:text-muted-warm"
 										style="font-size: 14px;"
 									/>
 								</div>
+								{#if err}
+									<div
+										id="audit-{field.testid}-error"
+										data-testid="audit-{field.testid}-error"
+										class="text-[11.5px] mt-1 flex items-center gap-1.5"
+										style="color: #F87171;"
+									>
+										<AlertTriangle size={11} class="flex-shrink-0" /> {err}
+									</div>
+								{/if}
 							</div>
 						{/each}
 

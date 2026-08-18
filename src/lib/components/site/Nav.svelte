@@ -59,9 +59,10 @@
 			</nav>
 
 			<a
-				href="#book-demo"
-				data-testid="nav-cta-book-demo"
-				class="group relative inline-flex items-center gap-2 pill-btn"
+				href="https://jhax-coo-446329867486.us-central1.run.app/team"
+				rel="noopener"
+				data-testid="nav-cta-sign-in"
+				class="group relative inline-flex items-center gap-2 pill-btn whitespace-nowrap"
 				style="background: #E8500A; color: #fff; padding: 11px 18px; border-radius: 100px; font-size: 13px; font-weight: 600; letter-spacing: -0.01em; transition: transform .2s ease, box-shadow .2s ease; box-shadow: 0 8px 26px -10px rgba(232,80,10,0.6);"
 				onmouseenter={(e) => {
 					e.currentTarget.style.transform = 'translateY(-2px)';
@@ -72,7 +73,7 @@
 					e.currentTarget.style.boxShadow = '0 8px 26px -10px rgba(232,80,10,0.6)';
 				}}
 			>
-				See It Live <span aria-hidden="true">→</span>
+				Sign In / Sign Up <span aria-hidden="true">→</span>
 			</a>
 
 			<!-- Hamburger — mobile only -->

@@ -85,7 +85,7 @@
 			</div>
 
 			<!-- Headline — masked line reveal -->
-			<h1
+			<!-- <h1
 				data-testid="hero-headline"
 				class="hero-headline mt-5 text-cream"
 				style="font-size: clamp(48px, 7.5vw, 96px);"
@@ -106,19 +106,41 @@
 						has a <span style="color: #E8500A;">new boss</span>.
 					</span>
 				</div>
-			</h1>
+			</h1> -->
+			<h1
+    data-testid="hero-headline"
+    class="hero-headline mt-5 text-cream"
+    style="font-size: clamp(48px, 7.5vw, 96px);"
+>
+    <div class="mask-line block">
+        <span
+            class="inline-block"
+            style="transform: translateY({shown ? '0%' : '110%'}); transition: transform .9s {EASE} .2s;"
+        >
+            Your restaurant
+        </span>
+    </div>
+    <div class="mask-line block">
+        <span
+            class="inline-block"
+            style="transform: translateY({shown ? '0%' : '110%'}); transition: transform .9s {EASE} .26s;"
+        >
+            just got <span style="color: #E8500A;">smarter</span>.
+        </span>
+    </div>
+</h1>
 
 			<!-- Sub -->
 			<p
-				data-testid="hero-subheadline"
-				class="mt-5 text-muted-warm"
-				style="font-family: Inter, sans-serif; font-weight: 300; font-size: clamp(16px, 1.4vw, 20px); line-height: 1.55; max-width: 560px; opacity: {shown
-					? 1
-					: 0}; transform: translateY({shown ? 0 : 20}px); transition: opacity .7s {EASE} .75s, transform .7s {EASE} .75s;"
-			>
-				JHAX watches your restaurant every hour, every day. When something goes wrong — it tells you
-				what, why, and exactly how to fix it. Before you even notice the problem.
-			</p>
+    data-testid="hero-subheadline"
+    class="mt-5 text-muted-warm"
+    style="font-family: Inter, sans-serif; font-weight: 300; font-size: clamp(16px, 1.4vw, 20px); line-height: 1.55; max-width: 560px; opacity: {shown
+        ? 1
+        : 0}; transform: translateY({shown ? 0 : 20}px); transition: opacity .7s {EASE} .75s, transform .7s {EASE} .75s;"
+>
+    JHAX watches every hour, every day. When something's off, it tells you what happened, why it
+    happened, and exactly how to fix it — before you even notice.
+</p>
 
 			<!-- CTAs -->
 			<div
