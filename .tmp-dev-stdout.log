@@ -1,0 +1,63 @@
+
+> jhax-landing-page-sveltekit@0.1.0 dev
+> vite dev --host 0.0.0.0 --port 4173
+
+Forced re-optimization of dependencies
+
+  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m2382[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m4173[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.0.102:[1m4173[22m/[39m
+[2m11:43:22 pm[22m [36m[1m[vite][22m[39m [32m✨ new dependencies optimized: [33mlenis, lucide-svelte, firebase/firestore, firebase/app[32m[39m
+[2m11:43:22 pm[22m [36m[1m[vite][22m[39m [32m✨ optimized dependencies changed. reloading[39m
+[2m11:47:37 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/routes/india/+page.svelte, /src/app.css[22m
+[2m11:47:37 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m11:47:47 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/routes/india/+page.svelte[22m
+[2m11:47:48 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m11:47:56 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/lib/components/site/Hero.svelte[22m
+[2m11:48:13 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/lib/components/site/TrustStrip.svelte, /src/app.css[22m
+[2m11:48:15 pm[22m [36m[1m[vite][22m[39m [32m✨ new dependencies optimized: [33mhtml2pdf.js[32m[39m
+[2m11:48:15 pm[22m [36m[1m[vite][22m[39m [32m✨ optimized dependencies changed. reloading[39m
+[2m11:48:23 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/lib/components/site/HowItWorks.svelte, /src/app.css[22m
+[2m11:48:34 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/lib/components/site/Marquee.svelte, /src/app.css[22m
+[2m11:49:08 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/lib/components/site/FAQ.svelte, /src/app.css[22m
+[2m11:49:18 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/lib/components/site/Stats.svelte, /src/app.css[22m
+[2m11:49:30 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/lib/components/site/FinalCTA.svelte, /src/app.css[22m
+[2m11:49:36 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/lib/components/site/Footer.svelte, /src/app.css[22m
+[2m11:50:12 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/lib/components/site/ProblemSection.svelte, /src/app.css[22m
+[2m11:50:41 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/lib/components/site/RealRestaurantProof.svelte, /src/app.css[22m
+[2m11:51:29 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/lib/components/site/LiveDemoCard.svelte, /src/app.css[22m
+[2m11:51:44 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/lib/components/site/ProductAskTab.svelte, /src/app.css[22m
+[2m11:52:29 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/lib/components/site/ProductMarketingTab.svelte, /src/app.css[22m
+[2m11:53:33 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/lib/components/site/ProductDemo.svelte, /src/app.css[22m
+[2m11:53:41 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/lib/components/site/ProductDemo.svelte, /src/app.css[22m
+[2m11:54:07 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/lib/components/site/Features.svelte, /src/app.css[22m
+[2m11:54:42 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/lib/components/site/PhoneSwipeDemo.svelte, /src/app.css[22m
+[2m11:55:12 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/lib/components/site/FreeAudit.svelte, /src/app.css[22m
+[2m11:55:38 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/0.js[22m
+[2m11:55:38 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/1.js[22m
+[2m11:55:38 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/3.js[22m
+[2m11:55:38 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m11:55:38 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/matchers.js[22m
+[2m11:55:38 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/shared/error-template.js[22m
+[2m11:55:38 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/server/internal.js[22m
+[2m11:55:38 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m11:56:23 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/0.js[22m
+[2m11:56:23 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/1.js[22m
+[2m11:56:23 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m11:56:23 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/3.js[22m
+[2m11:56:23 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/matchers.js[22m
+[2m11:56:23 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/shared/error-template.js[22m
+[2m11:56:23 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/server/internal.js[22m
+[2m11:56:23 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m11:57:01 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/0.js[22m
+[2m11:57:01 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/1.js[22m
+[2m11:57:01 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m11:57:01 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/3.js[22m
+[2m11:57:01 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/matchers.js[22m
+[2m11:57:01 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/shared/error-template.js[22m
+[2m11:57:01 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/server/internal.js[22m
+[2m11:57:01 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m11:57:02 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mbuild/index.html[22m
+[2m11:57:02 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mbuild/privacy-policy.html[22m
+[2m11:57:02 pm[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mbuild/index.html[22m

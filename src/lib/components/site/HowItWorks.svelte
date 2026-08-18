@@ -1,24 +1,44 @@
 <script>
 	import ChapterHeader from './ChapterHeader.svelte';
 	import Reveal from './Reveal.svelte';
+	import { isIndiaRoute } from '@/siteVariant.js';
 
-	const steps = [
-		{
-			n: '01',
-			title: 'Plug in your Square',
-			body: "Takes 15 minutes. JHAX connects to your Square and starts reading your sales, customers, and menu straight away. No extra hardware. No tech person needed. If you can log into Square, you're ready."
-		},
-		{
-			n: '02',
-			title: "JHAX watches. You don't have to.",
-			body: 'Every hour, JHAX checks your numbers. The second something goes wrong — money drops, a good customer disappears — it tells you exactly what happened and why. Before you even open the app.'
-		},
-		{
-			n: '03',
-			title: 'One tap. Problem gone.',
-			body: "JHAX doesn't just tell you what's wrong — it fixes it. Tap once to send a message or update a schedule. Then it shows you how much money came back within 48 hours."
-		}
-	];
+	const INDIA = isIndiaRoute();
+	const steps = INDIA
+		? [
+				{
+					n: '01',
+					title: 'Plug in your POS and channels',
+					body: 'Takes about 15 minutes. JHAX connects to your POS stack and starts reading your sales, customers, menu, and channel activity right away. No extra hardware. No ops consultant needed.'
+				},
+				{
+					n: '02',
+					title: "JHAX watches. You don't have to.",
+					body: 'Every hour, JHAX checks your numbers. The second something goes wrong — money drops, a regular disappears, or an outlet slips — it tells you exactly what happened and why.'
+				},
+				{
+					n: '03',
+					title: 'One tap. Problem handled.',
+					body: 'JHAX does not just point at the problem — it helps close it. Tap once to send a message, launch an offer, or tighten a schedule. Then it shows you what money came back.'
+				}
+			]
+		: [
+				{
+					n: '01',
+					title: 'Plug in your Square',
+					body: "Takes 15 minutes. JHAX connects to your Square and starts reading your sales, customers, and menu straight away. No extra hardware. No tech person needed. If you can log into Square, you're ready."
+				},
+				{
+					n: '02',
+					title: "JHAX watches. You don't have to.",
+					body: 'Every hour, JHAX checks your numbers. The second something goes wrong — money drops, a good customer disappears — it tells you exactly what happened and why. Before you even open the app.'
+				},
+				{
+					n: '03',
+					title: 'One tap. Problem gone.',
+					body: "JHAX doesn't just tell you what's wrong — it fixes it. Tap once to send a message or update a schedule. Then it shows you how much money came back within 48 hours."
+				}
+			];
 </script>
 
 <section id="how" data-testid="how-it-works" class="relative py-28 md:py-40">

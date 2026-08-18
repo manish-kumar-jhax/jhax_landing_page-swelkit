@@ -5,39 +5,74 @@
 	import Reveal from './Reveal.svelte';
 	import { reveal } from '@/actions/reveal.js';
 	import { animateValue, EASE_OUT_EXPO } from '@/motion.js';
+	import { formatMoney, isIndiaRoute } from '@/siteVariant.js';
 
-	const PAIRS = [
-		{
-			cost: 486,
-			pain: 'Money drops on Tuesday. You open 6 different apps trying to figure out why. An hour later — still no answer.',
-			fix: 'Ask “why is money down?” Get the real answer in 60 seconds. Then fix it with one tap.'
-		},
-		{
-			cost: 340,
-			pain: 'Your accountant calls three weeks later to say you paid staff too much. That money is already spent.',
-			fix: "Every Monday morning, JHAX tells you exactly where you're spending too much — before the week starts."
-		},
-		{
-			cost: 412,
-			pain: 'Your best customer — the one who came every week — stopped coming 45 days ago. You had no idea.',
-			fix: 'JHAX notices when a regular stops coming and reaches out to them automatically before they leave for good.'
-		},
-		{
-			cost: 180,
-			pain: "Making a promotion takes 2 hours across 3 different apps. By the time it's ready, the slow hour is over.",
-			fix: 'Under 2 minutes — message written, picture made, offer ready. All from one screen. No switching apps.'
-		},
-		{
-			cost: 327,
-			pain: "You sent out an offer last Tuesday. You have no idea if anyone came because of it. You'll never know.",
-			fix: 'See exactly how many people came back and how much money your promotion made. Every single time.'
-		},
-		{
-			cost: 694,
-			pain: "You have too many staff working Tuesday lunch — every single week. That's $340 gone. Every week.",
-			fix: 'JHAX catches overstaffing before it costs you. Average saving: $300–800 every single week.'
-		}
-	];
+	const INDIA = isIndiaRoute();
+	const PAIRS = INDIA
+		? [
+				{
+					cost: 40338,
+					pain: 'Money drops on Tuesday. You open six different apps trying to figure out why. An hour later — still no clear answer.',
+					fix: 'Ask “why is money down?” Get the real answer in 60 seconds. Then fix it with one tap.'
+				},
+				{
+					cost: 28220,
+					pain: 'Your accountant flags bloated staffing weeks later. By then, the money is already gone.',
+					fix: "Every Monday morning, JHAX tells you exactly where you're overspending — before the week begins."
+				},
+				{
+					cost: 34196,
+					pain: 'Your best regular — the one who orders every week — stopped showing up 45 days ago. You had no idea.',
+					fix: 'JHAX notices when a regular slips and helps you reach out before they disappear for good.'
+				},
+				{
+					cost: 14940,
+					pain: "Building an offer takes two hours across three different apps. By the time it's ready, the slow slot is already gone.",
+					fix: 'Under two minutes — message written, creative ready, offer live. All from one screen.'
+				},
+				{
+					cost: 27141,
+					pain: "You ran an offer last Tuesday. You still don't know if it brought anyone back.",
+					fix: 'See exactly how many people returned and how much money the promotion made. Every single time.'
+				},
+				{
+					cost: 57576,
+					pain: `You have too many staff working Tuesday lunch — every single week. That's ${formatMoney(28220)} gone. Every week.`,
+					fix: `JHAX catches overstaffing before it costs you. Average saving: ${formatMoney(24900)}–${formatMoney(66400)} every single week.`
+				}
+			]
+		: [
+				{
+					cost: 486,
+					pain: 'Money drops on Tuesday. You open 6 different apps trying to figure out why. An hour later — still no answer.',
+					fix: 'Ask “why is money down?” Get the real answer in 60 seconds. Then fix it with one tap.'
+				},
+				{
+					cost: 340,
+					pain: 'Your accountant calls three weeks later to say you paid staff too much. That money is already spent.',
+					fix: "Every Monday morning, JHAX tells you exactly where you're spending too much — before the week starts."
+				},
+				{
+					cost: 412,
+					pain: 'Your best customer — the one who came every week — stopped coming 45 days ago. You had no idea.',
+					fix: 'JHAX notices when a regular stops coming and reaches out to them automatically before they leave for good.'
+				},
+				{
+					cost: 180,
+					pain: "Making a promotion takes 2 hours across 3 different apps. By the time it's ready, the slow hour is over.",
+					fix: 'Under 2 minutes — message written, picture made, offer ready. All from one screen. No switching apps.'
+				},
+				{
+					cost: 327,
+					pain: "You sent out an offer last Tuesday. You have no idea if anyone came because of it. You'll never know.",
+					fix: 'See exactly how many people came back and how much money your promotion made. Every single time.'
+				},
+				{
+					cost: 694,
+					pain: "You have too many staff working Tuesday lunch — every single week. That's $340 gone. Every week.",
+					fix: 'JHAX catches overstaffing before it costs you. Average saving: $300–800 every single week.'
+				}
+			];
 
 	const TOTAL = PAIRS.reduce((a, p) => a + p.cost, 0); // 2,439
 
@@ -112,7 +147,7 @@
 							style="font-size: clamp(38px, 5.5vw, 64px); letter-spacing: -0.035em; line-height: 1;"
 							data-testid="cost-counter-value"
 						>
-							${display.toLocaleString('en-US')}
+							{formatMoney(display)}
 							<span class="text-muted-warm font-mono ml-2" style="font-size: 14px; letter-spacing: 0.05em;">
 								/ week
 							</span>
@@ -124,7 +159,7 @@
 						class="flex justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-ghost mb-2"
 					>
 						<span>Bleed detected</span>
-						<span>${TOTAL.toLocaleString('en-US')} / week</span>
+						<span>{formatMoney(TOTAL)} / week</span>
 					</div>
 					<div
 						class="h-2 rounded-full overflow-hidden"
@@ -188,7 +223,7 @@
 									style="background: rgba(220,38,38,0.1); color: #F87171; border: 1px solid rgba(220,38,38,0.3);"
 									data-testid="pain-cost-{i}"
 								>
-									<span>–</span> ${pair.cost.toLocaleString('en-US')} / week
+									<span>–</span> {formatMoney(pair.cost)} / week
 								</div>
 							</div>
 						</div>
@@ -222,7 +257,7 @@
 									style="background: rgba(22,163,74,0.1); color: #22C55E; border: 1px solid rgba(22,163,74,0.3);"
 									data-testid="fix-save-{i}"
 								>
-									<span>+</span> Saves ${pair.cost.toLocaleString('en-US')} / week
+									<span>+</span> Saves {formatMoney(pair.cost)} / week
 								</div>
 							</div>
 						</div>

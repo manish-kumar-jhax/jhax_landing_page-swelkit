@@ -23,10 +23,13 @@
 	import { runAudit as runAuditRequest } from '@/audit/index.js';
 	import { saveLead } from '@/leads.js';
 	import { scrollToEl } from '@/lenis.js';
+	import { formatLocaleNumber, formatMoney, isIndiaRoute } from '@/siteVariant.js';
 
 	// Kept in sync with the backend heuristics (audit.js).
 	const BENCHMARK_RATING = 4.7;
 	const VISIBILITY_REVIEW_FLOOR = 150;
+	const INDIA = isIndiaRoute();
+	const LOCALE = INDIA ? 'en-IN' : 'en-US';
 
 	const LOADING_STEPS = [
 		{ emoji: '🔍', label: 'Finding your restaurant' },
@@ -36,11 +39,17 @@
 		{ emoji: '💰', label: 'Finding money leaks' }
 	];
 
-	const EXAMPLES = [
-		{ name: "Katz's Delicatessen", city: 'New York', label: "Katz's Delicatessen · New York" },
-		{ name: 'Franklin Barbecue', city: 'Austin', label: 'Franklin Barbecue · Austin' },
-		{ name: 'Pike Place Chowder', city: 'Seattle', label: 'Pike Place Chowder · Seattle' }
-	];
+	const EXAMPLES = INDIA
+		? [
+				{ name: 'Indian Accent', city: 'New Delhi', label: 'Indian Accent · New Delhi' },
+				{ name: 'Toit', city: 'Bengaluru', label: 'Toit · Bengaluru' },
+				{ name: 'Bastian', city: 'Mumbai', label: 'Bastian · Mumbai' }
+			]
+		: [
+				{ name: "Katz's Delicatessen", city: 'New York', label: "Katz's Delicatessen · New York" },
+				{ name: 'Franklin Barbecue', city: 'Austin', label: 'Franklin Barbecue · Austin' },
+				{ name: 'Pike Place Chowder', city: 'Seattle', label: 'Pike Place Chowder · Seattle' }
+			];
 
 	const TIER_STYLES = {
 		URGENT: { Icon: AlertTriangle, color: '#F87171', bg: 'rgba(220,38,38,0.10)', bd: 'rgba(220,38,38,0.35)' },
@@ -58,7 +67,7 @@
 				tier: rating < 4.0 ? 'URGENT' : 'FIX THIS',
 				title: `Your rating is ${rating.toFixed(1)}★ — ${gap} below the 4.7 that keeps tables full`,
 				body: "Each star is worth ~5–9% of revenue. Reply to recent reviews and fix the top complaint — that's the fastest lift.",
-				impact: moneyLost ? `$${moneyLost.toLocaleString('en-US')} / week` : null
+				impact: moneyLost ? `${formatMoney(moneyLost)} / week` : null
 			});
 		} else if (rating != null) {
 			out.push({
@@ -73,14 +82,14 @@
 			if (reviewCount < VISIBILITY_REVIEW_FLOOR) {
 				out.push({
 					tier: 'FIX THIS',
-					title: `Only ${reviewCount.toLocaleString('en-US')} public reviews — you're hard to find`,
+					title: `Only ${reviewCount.toLocaleString(LOCALE)} public reviews — you're hard to find`,
 					body: "Thin review counts push you down Google's local results. A simple 'leave us a review' prompt at checkout compounds every week.",
 					impact: null
 				});
 			} else {
 				out.push({
 					tier: 'OPPORTUNITY',
-					title: `${reviewCount.toLocaleString('en-US')} reviews is real reach`,
+					title: `${reviewCount.toLocaleString(LOCALE)} reviews is real reach`,
 					body: "You already have the audience. Turning happy reviewers into referrers is the cheapest growth you'll find.",
 					impact: null
 				});
@@ -110,7 +119,7 @@
 
 		const kpis = [
 			{ label: 'Rating', value: rating != null ? rating.toFixed(1) : '—', suffix: rating != null ? '★' : '', icon: Star },
-			{ label: 'Reviews', value: reviewCount != null ? reviewCount.toLocaleString('en-US') : '—', icon: MessageSquare },
+			{ label: 'Reviews', value: reviewCount != null ? reviewCount.toLocaleString(LOCALE) : '—', icon: MessageSquare },
 			{ label: 'Open now', value: openNow === true ? 'Open' : openNow === false ? 'Closed' : '—', icon: Clock },
 			{ label: 'Health', value: est.health_score != null ? String(est.health_score) : '—', suffix: '/100', icon: Activity }
 		];
@@ -140,7 +149,7 @@
 	const PDF_TIER_COLOR = { URGENT: '#DC2626', 'FIX THIS': '#E8500A', OPPORTUNITY: '#16A34A' };
 
 	function buildPdfTemplate(report) {
-		const money = '$' + (report.moneyLost || 0).toLocaleString('en-US') + ' / wk';
+		const money = formatMoney(report.moneyLost || 0) + ' / wk';
 		const sColor = pdfScoreColor(report.healthScore);
 
 		const sectionTitle = (t) =>
@@ -352,7 +361,7 @@
 			const status = err?.status;
 			let msg;
 			if (status === 404) {
-				msg = `We couldn't find "${name}"${city ? ` in ${city}` : ''} on Google. Check the spelling, or add the city.`;
+				msg = `We couldn't find "${name}"${city ? ` in ${city}` : ''} on Google Maps. Check the spelling, or add the city.`;
 			} else if (status === 503) {
 				msg = "Live lookups aren't switched on yet — this needs a Google Places API key.";
 			} else if (status === 400) {
@@ -644,8 +653,13 @@
 				class="mt-5 mx-auto text-muted-warm"
 				style="max-width: 620px; font-size: 16px; line-height: 1.55; font-weight: 300;"
 			>
-				No sign-up. No credit card. Just type your restaurant name and we&apos;ll show you exactly
-				where money is slipping through the cracks.
+				{#if INDIA}
+					No sign-up. No credit card. Just type your restaurant name and we&apos;ll show you exactly
+					where revenue is slipping through the cracks.
+				{:else}
+					No sign-up. No credit card. Just type your restaurant name and we&apos;ll show you exactly
+					where money is slipping through the cracks.
+				{/if}
 			</p>
 		</div>
 
@@ -663,7 +677,7 @@
 				<input
 					type="text"
 					bind:value={query}
-					placeholder="Restaurant name and city (e.g. Joe's Pizza, New York)"
+					placeholder={INDIA ? 'Restaurant name and city (e.g. Toit, Bengaluru)' : "Restaurant name and city (e.g. Joe's Pizza, New York)"}
 					data-testid="audit-input"
 					class="flex-1 min-w-0 w-full bg-transparent outline-none text-cream placeholder:text-muted-warm"
 					style="font-size: 15px; font-weight: 500;"
@@ -859,7 +873,7 @@
 								style="color: #FF6B2B; font-size: clamp(28px, 3.4vw, 40px); letter-spacing: -0.03em; line-height: 1;"
 								data-testid="audit-total-impact"
 							>
-								${totalImpact.toLocaleString('en-US')}
+								{formatLocaleNumber(totalImpact)}
 							</div>
 							<div class="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-warm mt-1">
 								Every week · Estimated
@@ -1062,7 +1076,7 @@
 								class="inline-flex items-center justify-center gap-2 rounded-full text-[14px] font-semibold w-full sm:w-auto"
 								style="background: #E8500A; color: #fff; padding: 12px 22px; box-shadow: 0 16px 40px -14px rgba(232,80,10,0.6);"
 							>
-								Connect your Square <ArrowRight size={14} />
+								{INDIA ? 'Connect your POS' : 'Connect your Square'} <ArrowRight size={14} />
 							</a>
 						</div>
 						{#if pdfMsg}
@@ -1089,7 +1103,7 @@
 				<span>·</span>
 				<span>Instant results</span>
 				<span>·</span>
-				<span>Real Google data</span>
+				<span>{INDIA ? 'Real Google Maps data' : 'Real Google data'}</span>
 			</div>
 		{/if}
 	</div>

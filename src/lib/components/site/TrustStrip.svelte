@@ -1,13 +1,23 @@
 <script>
 	import Reveal from './Reveal.svelte';
+	import { isIndiaRoute } from '@/siteVariant.js';
 
-	const items = [
-		{ name: 'Square POS', status: 'live' },
-		{ name: 'QuickBooks', status: 'soon' },
-		{ name: 'WhatsApp Business', status: 'soon' },
-		{ name: 'Toast', status: 'soon' },
-		{ name: 'Clover', status: 'soon' }
-	];
+	const INDIA = isIndiaRoute();
+	const items = INDIA
+		? [
+				{ name: 'Petpooja', status: 'live' },
+				{ name: 'UrbanPiper', status: 'soon' },
+				{ name: 'WhatsApp Business', status: 'soon' },
+				{ name: 'Zomato', status: 'soon' },
+				{ name: 'Swiggy', status: 'soon' }
+			]
+		: [
+				{ name: 'Square POS', status: 'live' },
+				{ name: 'QuickBooks', status: 'soon' },
+				{ name: 'WhatsApp Business', status: 'soon' },
+				{ name: 'Toast', status: 'soon' },
+				{ name: 'Clover', status: 'soon' }
+			];
 
 	const slug = (s) => s.toLowerCase().replace(/\s+/g, '-');
 </script>
@@ -57,7 +67,7 @@
 			class="ml-auto flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-warm"
 		>
 			<span class="w-1.5 h-1.5 rounded-full dot-pulse" style="background: #16A34A;"></span>
-			1 restaurant using JHAX right now
+			{INDIA ? '1 India restaurant using JHAX right now' : '1 restaurant using JHAX right now'}
 		</div>
 	</div>
 </section>
