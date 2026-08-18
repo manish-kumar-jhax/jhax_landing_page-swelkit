@@ -1,16 +1,29 @@
 <script>
 	// One slow editorial marquee — kinetic type, very subtle. Content is duplicated
 	// twice for a seamless loop (CSS .marquee-track animation in app.css).
-	const words = [
-		'Your restaurant.',
-		'On autopilot.',
-		'Answers in 60 seconds.',
-		'Finds $400 a week.',
-		'Plugs into Square.',
-		'Built for restaurant owners.',
-		"1 restaurant. 15. Doesn't matter.",
-		'Spots it. Finds why. Fixes it. Shows the money back.'
-	];
+	import { isIndiaRoute } from '@/siteVariant.js';
+
+	const words = isIndiaRoute()
+		? [
+				'Your restaurant in India.',
+				'On autopilot.',
+				'Answers in 60 seconds.',
+				'Finds ₹33,000 a week.',
+				'Plugs into your POS.',
+				'Built for restaurant owners.',
+				"1 outlet. 15. Doesn't matter.",
+				'Spots it. Finds why. Fixes it. Shows the money back.'
+			]
+		: [
+				'Your restaurant.',
+				'On autopilot.',
+				'Answers in 60 seconds.',
+				'Finds $400 a week.',
+				'Plugs into Square.',
+				'Built for restaurant owners.',
+				"1 restaurant. 15. Doesn't matter.",
+				'Spots it. Finds why. Fixes it. Shows the money back.'
+			];
 </script>
 
 {#snippet content()}

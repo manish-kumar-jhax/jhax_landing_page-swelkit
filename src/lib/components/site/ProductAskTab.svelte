@@ -1,13 +1,22 @@
 <script>
 	import { ArrowRight } from 'lucide-svelte';
 	import { Mic } from 'lucide-svelte';
+	import { isIndiaRoute } from '@/siteVariant.js';
 
-	const askQuestions = [
-		'Why is money down 38.8% today?',
-		'Which of my 3 restaurants needs my help?',
-		'Do I have too many staff Tuesday lunch?',
-		'Who are my top 20 customers this month?'
-	];
+	const INDIA = isIndiaRoute();
+	const askQuestions = INDIA
+		? [
+				'Why is revenue down 38.8% today?',
+				'Which of my 3 outlets needs my help?',
+				'Do I have too many staff Tuesday lunch?',
+				'Who are my top 20 customers this month?'
+			]
+		: [
+				'Why is money down 38.8% today?',
+				'Which of my 3 restaurants needs my help?',
+				'Do I have too many staff Tuesday lunch?',
+				'Who are my top 20 customers this month?'
+			];
 
 	let q = $state(0);
 	let text = $state('');
@@ -75,18 +84,18 @@
 			</div>
 		</div>
 		<div class="text-cream font-display" style="font-size: 26px; letter-spacing: -0.02em; line-height: 1.1;">
-			It&apos;s about your regulars, not new people.
+			{INDIA ? 'It&apos;s about your regulars, not new orders.' : 'It&apos;s about your regulars, not new people.'}
 		</div>
 		<div class="font-mono text-[11px] mt-1" style="color: #16A34A;">
-			[+$368 this week if we bring them back]
+			{INDIA ? '[+₹30,544 this week if we bring them back]' : '[+$368 this week if we bring them back]'}
 		</div>
 		<p class="text-muted-warm mt-3 text-[15px] leading-relaxed">
 			63 of your best customers haven&apos;t returned in 30 days. Bringing back 20% of them recovers ~<span
-				class="text-cream">$368</span
+				class="text-cream">{INDIA ? '₹30,544' : '$368'}</span
 			> this week. One tap sends the message on WhatsApp + SMS.
 		</p>
 		<div class="flex flex-wrap gap-2 mt-4">
-			{#each [['Not back', '63'], ['Est. recovery', '$368'], ['Response time', '60 sec']] as [l, v] (l)}
+			{#each [['Not back', '63'], ['Est. recovery', INDIA ? '₹30,544' : '$368'], ['Response time', '60 sec']] as [l, v] (l)}
 				<div
 					class="px-3 py-1.5 rounded-full font-mono text-[11px]"
 					style="background: #0f0f0f; border: 1px solid #1E1E1E;"

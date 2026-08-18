@@ -11,6 +11,7 @@
 		ArrowRight,
 		Send
 	} from 'lucide-svelte';
+	import { isIndiaRoute } from '@/siteVariant.js';
 
 	const SCREENS = ['morning', 'dashboard', 'ask'];
 	const AUTO_MS = 4200;
@@ -102,19 +103,61 @@
 		{ key: 'dashboard', label: 'TODAY', Icon: BarChart3 },
 		{ key: 'ask', label: 'ASK AI', Icon: MessageCircle }
 	];
+	const INDIA = isIndiaRoute();
 
-	const dashKpis = [
-		{ l: 'Total Money', v: '$398', d: '-38.8%', down: true },
-		{ l: 'Tables served', v: '19', d: '-26.9%', down: true, sub: '19 orders today' },
-		{ l: 'Each spend', v: '$21', sub: 'on average' },
-		{ l: 'Come back', v: '68%', sub: 'returning' },
-		{ l: 'Table Turn', v: '1.19×', sub: 'turns/day' },
-		{ l: 'RevPASH', v: '$0.41', sub: 'seat · hour' },
-		{ l: 'Tips', v: '$0', sub: 'customer' },
-		{ l: 'People', v: '14', sub: 'today' }
-	];
+	const dashKpis = INDIA
+		? [
+				{ l: 'Total Money', v: '₹33,034', d: '-38.8%', down: true },
+				{ l: 'Tables served', v: '19', d: '-26.9%', down: true, sub: '19 orders today' },
+				{ l: 'Each spend', v: '₹1,743', sub: 'on average' },
+				{ l: 'Come back', v: '68%', sub: 'returning' },
+				{ l: 'Table Turn', v: '1.19×', sub: 'turns/day' },
+				{ l: 'RevPASH', v: '₹34', sub: 'seat · hour' },
+				{ l: 'Tips', v: '₹0', sub: 'customer' },
+				{ l: 'People', v: '14', sub: 'today' }
+			]
+		: [
+				{ l: 'Total Money', v: '$398', d: '-38.8%', down: true },
+				{ l: 'Tables served', v: '19', d: '-26.9%', down: true, sub: '19 orders today' },
+				{ l: 'Each spend', v: '$21', sub: 'on average' },
+				{ l: 'Come back', v: '68%', sub: 'returning' },
+				{ l: 'Table Turn', v: '1.19×', sub: 'turns/day' },
+				{ l: 'RevPASH', v: '$0.41', sub: 'seat · hour' },
+				{ l: 'Tips', v: '$0', sub: 'customer' },
+				{ l: 'People', v: '14', sub: 'today' }
+			];
 
-	const morningCards = [
+	const morningCards = INDIA
+		? [
+				{
+					i: AlertTriangle,
+					tag: 'ACT TODAY',
+					color: '#F87171',
+					bg: 'rgba(220,38,38,0.10)',
+					bd: 'rgba(220,38,38,0.35)',
+					title: "63 of your regulars haven't been back this month",
+					body: 'Reach out to bring them back before they disappear'
+				},
+				{
+					i: Clock,
+					tag: 'HEADS UP',
+					color: '#FF6B2B',
+					bg: 'rgba(232,80,10,0.12)',
+					bd: 'rgba(232,80,10,0.4)',
+					title: 'Today is Tuesday — your slowest day',
+					body: "Here's how to make more money tonight"
+				},
+				{
+					i: Sparkles,
+					tag: 'OPPORTUNITY',
+					color: '#22C55E',
+					bg: 'rgba(22,163,74,0.10)',
+					bd: 'rgba(22,163,74,0.35)',
+					title: 'Your best money-maker is missing from promotions',
+					body: 'Paneer Tikka Platter · 72% margin · ₹89,723 this month'
+				}
+			]
+		: [
 		{
 			i: AlertTriangle,
 			tag: 'ACT TODAY',
@@ -144,11 +187,17 @@
 		}
 	];
 
-	const morningPills = [
-		{ l: 'Health', v: '74', c: '#22C55E' },
-		{ l: 'Recover', v: '$412', c: '#FF6B2B' },
-		{ l: 'To Do', v: '4', c: '#F5F2ED' }
-	];
+	const morningPills = INDIA
+		? [
+				{ l: 'Health', v: '74', c: '#22C55E' },
+				{ l: 'Recover', v: '₹34,196', c: '#FF6B2B' },
+				{ l: 'To Do', v: '4', c: '#F5F2ED' }
+			]
+		: [
+				{ l: 'Health', v: '74', c: '#22C55E' },
+				{ l: 'Recover', v: '$412', c: '#FF6B2B' },
+				{ l: 'To Do', v: '4', c: '#F5F2ED' }
+			];
 </script>
 
 <div id="phone-swipe" data-testid="phone-swipe-section" class="relative flex flex-col items-center">
@@ -206,10 +255,10 @@
 									<Sun size={11} /> Morning brief · Thu · 07:42
 								</div>
 								<div class="font-display mt-2" style="font-size: 26px; letter-spacing: -0.03em; line-height: 1.05;">
-									Good morning, Alex <span aria-hidden="true">☀️</span>
+									Good morning, {INDIA ? 'Aarav' : 'Alex'} <span aria-hidden="true">☀️</span>
 								</div>
 								<div class="mt-2 text-[12.5px] leading-snug" style="color: #6B6866;">
-									Yesterday your restaurant made <span style="color: #F5F2ED;">$2,847</span>. Here are
+									Yesterday your restaurant made <span style="color: #F5F2ED;">{INDIA ? '₹2,36,181' : '$2,847'}</span>. Here are
 									<span style="color: #F5F2ED;">3 things</span> that need your attention today.
 								</div>
 							</div>
@@ -271,7 +320,7 @@
 									<span>Today · West Village</span>
 									<span class="flex items-center gap-1.5">
 										<span class="w-1.5 h-1.5 rounded-full dot-pulse" style="background: #16A34A;"></span>
-										<span style="color: #16A34A;">Square · Live</span>
+										<span style="color: #16A34A;">{INDIA ? 'POS · Live' : 'Square · Live'}</span>
 									</span>
 								</div>
 								<div
@@ -366,7 +415,7 @@
 										</div>
 										<div class="text-[11.5px] mt-1.5" style="color: #6B6866;">
 											63 regulars haven&apos;t been back in 30 days. Bring back 20% of them and you get
-											<span style="color: #F5F2ED;">$368</span> this week.
+											<span style="color: #F5F2ED;">{INDIA ? '₹30,544' : '$368'}</span> this week.
 										</div>
 										<div class="mt-2 flex gap-1.5 flex-wrap">
 											<span
@@ -379,7 +428,7 @@
 												class="rounded-full font-mono"
 												style="font-size: 9px; padding: 3px 8px; background: #0a0a0a; border: 1px solid #1E1E1E; color: #6B6866;"
 											>
-												Bring back $368
+												Bring back {INDIA ? '₹30,544' : '$368'}
 											</span>
 										</div>
 										<button
