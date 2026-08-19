@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import LiveDemoCard from './LiveDemoCard.svelte';
+	import { isIndiaRoute } from '@/siteVariant.js';
 
 	// Signature on-load moment: line-by-line masked reveal for the headline,
 	// staggered fade-up for badge/sub/CTA, Live Demo Card inline (above the fold).
@@ -10,6 +11,7 @@
 	let cardY = $state(0);
 
 	const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+	const INDIA = isIndiaRoute();
 
 	onMount(() => {
 		requestAnimationFrame(() => (shown = true));
@@ -81,7 +83,7 @@
 				data-testid="hero-live-badge"
 			>
 				<span class="w-1.5 h-1.5 rounded-full dot-pulse" style="background: #E8500A;"></span>
-				LIVE · Watching a real restaurant right now
+				{INDIA ? 'LIVE · Watching a real India restaurant right now' : 'LIVE · Watching a real restaurant right now'}
 			</div>
 
 			<!-- Headline — masked line reveal -->
@@ -117,7 +119,7 @@
             class="inline-block"
             style="transform: translateY({shown ? '0%' : '110%'}); transition: transform .9s {EASE} .2s;"
         >
-            Your restaurant
+            {INDIA ? 'Your restaurant in India' : 'Your restaurant'}
         </span>
     </div>
     <div class="mask-line block">
@@ -138,8 +140,9 @@
         ? 1
         : 0}; transform: translateY({shown ? 0 : 20}px); transition: opacity .7s {EASE} .75s, transform .7s {EASE} .75s;"
 >
-    JHAX watches every hour, every day. When something's off, it tells you what happened, why it
-    happened, and exactly how to fix it — before you even notice.
+    {INDIA
+		? 'JHAX watches every outlet, every shift, every day. When something is off, it tells you what happened, why it happened, and exactly how to fix it before service slips.'
+		: 'JHAX watches every hour, every day. When something\'s off, it tells you what happened, why it happened, and exactly how to fix it — before you even notice.'}
 </p>
 
 			<!-- CTAs -->

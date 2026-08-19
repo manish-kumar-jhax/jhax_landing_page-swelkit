@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { fly } from 'svelte/transition';
 	import { MessageSquare, Users, Utensils, Clock, Megaphone } from 'lucide-svelte';
+	import { isIndiaRoute } from '@/siteVariant.js';
 
 	// Tabs = 5 categories. "Ask Anything" is the always-on hub label (default).
 	// The other 4 map to a real operator question with a full AI response. The
@@ -16,60 +17,116 @@
 	];
 
 	// Only 4 real Q/A pairs — one per tab (excluding "Ask Anything" hub).
-	const ITEMS = [
-		{
-			tab: 'customers',
-			question: 'Who are my top 20 customers this month?',
-			headline: 'Top 20 = 34% of your money',
-			delta: '3 regulars slipping',
-			body: 'Sarah M. leads at <strong class="text-cream">$412</strong> across 7 visits. 3 of your top 20 haven&apos;t been back in 21 days — reach out before they slip.',
-			stats: [
-				{ label: 'Regulars', value: '20' },
-				{ label: 'Share of money', value: '34%' },
-				{ label: 'Not back', value: '3' }
-			],
-			cta: 'Send the message to those customers'
-		},
-		{
-			tab: 'menu',
-			question: 'What dish makes me the most money this week?',
-			headline: 'Wagyu Sliders: 68% margin',
-			delta: '$1,412 earned',
-			body: 'Sold <strong class="text-cream">47 units</strong>, contributed <strong class="text-cream">$1,412</strong>. Only appears on 12% of orders — hardly anyone knows about it. Bundle into a deal to sell more.',
-			stats: [
-				{ label: 'Margin', value: '68%' },
-				{ label: 'Sold', value: '47' },
-				{ label: 'Money', value: '$1,412' }
-			],
-			cta: 'Build a deal'
-		},
-		{
-			tab: 'labor',
-			question: 'Do I have too many staff on Tuesday lunch?',
-			headline: 'Tue 11–2 has too many staff',
-			delta: '–$340 / week',
-			body: 'You have <strong class="text-cream">42% more staff</strong> than the Tuesday lunch actually needs. Trim 1 cook + 1 server saves <strong class="text-cream">$17,680/yr</strong> with zero impact on service.',
-			stats: [
-				{ label: 'Overstaffed', value: '42%' },
-				{ label: 'Every week', value: '$340' },
-				{ label: 'Every year', value: '$17,680' }
-			],
-			cta: 'Fix the schedule'
-		},
-		{
-			tab: 'marketing',
-			question: 'Which offer brought back the most money?',
-			headline: 'WhatsApp offer — Nov 12',
-			delta: '$2,214 back',
-			body: 'Brought back <strong class="text-cream">$2,214</strong> from <strong class="text-cream">47 people</strong> in 5 days. Cost $120. Winner — send it again next Tuesday to 63 people who stopped coming.',
-			stats: [
-				{ label: 'Money back', value: '$2,214' },
-				{ label: 'For every $1', value: '$18.40' },
-				{ label: 'People', value: '47' }
-			],
-			cta: 'Send it again'
-		}
-	];
+	const INDIA = isIndiaRoute();
+	const ITEMS = INDIA
+		? [
+				{
+					tab: 'customers',
+					question: 'Who are my top 20 customers this month?',
+					headline: 'Top 20 = 34% of your revenue',
+					delta: '3 regulars slipping',
+					body: 'Aarav S. leads at <strong class="text-cream">₹34,196</strong> across 7 visits. 3 of your top 20 haven&apos;t been back in 21 days — reach out before they slip.',
+					stats: [
+						{ label: 'Regulars', value: '20' },
+						{ label: 'Share of money', value: '34%' },
+						{ label: 'Not back', value: '3' }
+					],
+					cta: 'Send the message to those customers'
+				},
+				{
+					tab: 'menu',
+					question: 'What dish makes me the most money this week?',
+					headline: 'Paneer Tikka Platter: 68% margin',
+					delta: '₹1,17,196 earned',
+					body: 'Sold <strong class="text-cream">47 units</strong>, contributed <strong class="text-cream">₹1,17,196</strong>. Only appears on 12% of orders — hardly anyone knows about it. Bundle it into a deal to sell more.',
+					stats: [
+						{ label: 'Margin', value: '68%' },
+						{ label: 'Sold', value: '47' },
+						{ label: 'Money', value: '₹1,17,196' }
+					],
+					cta: 'Build a deal'
+				},
+				{
+					tab: 'labor',
+					question: 'Do I have too many staff on Tuesday lunch?',
+					headline: 'Tue 11–2 has too many staff',
+					delta: '–₹28,220 / week',
+					body: 'You have <strong class="text-cream">42% more staff</strong> than the Tuesday lunch actually needs. Trim 1 cook + 1 server saves <strong class="text-cream">₹14,67,440/yr</strong> with zero impact on service.',
+					stats: [
+						{ label: 'Overstaffed', value: '42%' },
+						{ label: 'Every week', value: '₹28,220' },
+						{ label: 'Every year', value: '₹14,67,440' }
+					],
+					cta: 'Fix the schedule'
+				},
+				{
+					tab: 'marketing',
+					question: 'Which offer brought back the most money?',
+					headline: 'WhatsApp offer — Aug 12',
+					delta: '₹1,83,762 back',
+					body: 'Brought back <strong class="text-cream">₹1,83,762</strong> from <strong class="text-cream">47 people</strong> in 5 days. Cost ₹9,960. Winner — send it again next Tuesday to 63 people who stopped coming.',
+					stats: [
+						{ label: 'Money back', value: '₹1,83,762' },
+						{ label: 'For every ₹1', value: '₹18.40' },
+						{ label: 'People', value: '47' }
+					],
+					cta: 'Send it again'
+				}
+			]
+		: [
+				{
+					tab: 'customers',
+					question: 'Who are my top 20 customers this month?',
+					headline: 'Top 20 = 34% of your money',
+					delta: '3 regulars slipping',
+					body: 'Sarah M. leads at <strong class="text-cream">$412</strong> across 7 visits. 3 of your top 20 haven&apos;t been back in 21 days — reach out before they slip.',
+					stats: [
+						{ label: 'Regulars', value: '20' },
+						{ label: 'Share of money', value: '34%' },
+						{ label: 'Not back', value: '3' }
+					],
+					cta: 'Send the message to those customers'
+				},
+				{
+					tab: 'menu',
+					question: 'What dish makes me the most money this week?',
+					headline: 'Wagyu Sliders: 68% margin',
+					delta: '$1,412 earned',
+					body: 'Sold <strong class="text-cream">47 units</strong>, contributed <strong class="text-cream">$1,412</strong>. Only appears on 12% of orders — hardly anyone knows about it. Bundle into a deal to sell more.',
+					stats: [
+						{ label: 'Margin', value: '68%' },
+						{ label: 'Sold', value: '47' },
+						{ label: 'Money', value: '$1,412' }
+					],
+					cta: 'Build a deal'
+				},
+				{
+					tab: 'labor',
+					question: 'Do I have too many staff on Tuesday lunch?',
+					headline: 'Tue 11–2 has too many staff',
+					delta: '–$340 / week',
+					body: 'You have <strong class="text-cream">42% more staff</strong> than the Tuesday lunch actually needs. Trim 1 cook + 1 server saves <strong class="text-cream">$17,680/yr</strong> with zero impact on service.',
+					stats: [
+						{ label: 'Overstaffed', value: '42%' },
+						{ label: 'Every week', value: '$340' },
+						{ label: 'Every year', value: '$17,680' }
+					],
+					cta: 'Fix the schedule'
+				},
+				{
+					tab: 'marketing',
+					question: 'Which offer brought back the most money?',
+					headline: 'WhatsApp offer — Nov 12',
+					delta: '$2,214 back',
+					body: 'Brought back <strong class="text-cream">$2,214</strong> from <strong class="text-cream">47 people</strong> in 5 days. Cost $120. Winner — send it again next Tuesday to 63 people who stopped coming.',
+					stats: [
+						{ label: 'Money back', value: '$2,214' },
+						{ label: 'For every $1', value: '$18.40' },
+						{ label: 'People', value: '47' }
+					],
+					cta: 'Send it again'
+				}
+			];
 
 	let idx = $state(0);
 	let remaining = $state(30);
@@ -151,7 +208,7 @@
 				<span class="w-1.5 h-1.5 rounded-full dot-pulse" style="background: #E8500A;"></span>
 				<span class="text-orange">JHAX</span>
 				<span class="text-ghost">·</span>
-				<span>Watching a real restaurant · Live</span>
+				<span>{INDIA ? 'Watching a real India restaurant · Live' : 'Watching a real restaurant · Live'}</span>
 			</div>
 			<div
 				class="font-mono text-[10px] uppercase tracking-[0.16em] text-ghost"

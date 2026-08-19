@@ -1,5 +1,6 @@
 <script>
 	import Logo from './Logo.svelte';
+	import { isIndiaRoute } from '@/siteVariant.js';
 </script>
 
 <footer data-testid="site-footer" class="relative border-t" style="border-color: #1E1E1E;">
@@ -10,7 +11,9 @@
 			<Logo size={22} markSize={26} />
 		</div>
 		<div class="text-muted-warm text-[14px] md:mx-auto text-center max-w-md">
-			Your restaurant has a new boss. And it never sleeps.
+			{isIndiaRoute()
+				? 'Your restaurant has a new operating brain. And it never sleeps.'
+				: 'Your restaurant has a new boss. And it never sleeps.'}
 		</div>
 		<div class="font-mono text-[11px] uppercase tracking-[0.18em] text-ghost">
 			© 2026 JHAX.ai — All rights reserved

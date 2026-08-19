@@ -15,8 +15,84 @@
 	} from 'lucide-svelte';
 	import ChapterHeader from './ChapterHeader.svelte';
 	import { reveal } from '@/actions/reveal.js';
+	import { isIndiaRoute } from '@/siteVariant.js';
 
-	const features = [
+	const features = isIndiaRoute()
+		? [
+				{
+					icon: MessageSquare,
+					bg: '#E8500A',
+					title: 'Ask it anything',
+					body: "Type or say any question about your restaurant. Get a clear answer in plain English and one thing to do. Even works while you're on the floor — just press the orange button and talk.",
+					tag: 'No one else does this',
+					example: 'Try: Why is revenue down today?'
+				},
+				{
+					icon: Activity,
+					bg: '#7C3AED',
+					title: "Your restaurant's health score",
+					body: 'One number from 0 to 100 that tells you if your restaurant is doing well right now. Green means good. Red means fix something today. Simple as that.',
+					tag: 'Unique to JHAX',
+					example: 'Right now: 51/100 — 3 things to fix'
+				},
+				{
+					icon: Target,
+					bg: '#E8500A',
+					title: 'Find out why in 60 seconds',
+					body: 'Revenue dropped? Instead of spending an hour guessing, ask JHAX. It reads all your numbers and tells you the real reason — in plain English — in under a minute.',
+					tag: '60 sec vs. 3 weeks',
+					example: 'Reason found: 63 regulars stopped coming'
+				},
+				{
+					icon: Users,
+					bg: '#0D9488',
+					title: 'Know your customers by name',
+					body: "See who your best customers are, how much they've spent, and when they last came in. Get a warning the moment a good customer starts to drift away — before they're gone.",
+					tag: "Most POS tools can't do this",
+					example: 'Aarav Malhotra · ₹94,703 spent · Last visit: today'
+				},
+				{
+					icon: Utensils,
+					bg: '#E8500A',
+					title: "Find out what's actually making money",
+					body: "Not everything on your menu earns the same profit. JHAX shows you what's working — and automatically builds the perfect bundle deal from your best sellers.",
+					tag: 'Built by JHAX, priced to sell',
+					example: 'Paneer Tikka Platter · 68% margin · 47 sold this week'
+				},
+				{
+					icon: LineChart,
+					bg: '#16A34A',
+					title: 'See if your promotion worked',
+					body: 'After every offer, JHAX shows you exactly how many people came back and how much they spent. No more guessing if it was worth sending.',
+					tag: 'Answer → result',
+					example: 'WhatsApp offer · +₹1,83,762 · 47 people came back'
+				},
+				{
+					icon: Clock,
+					bg: '#D97706',
+					title: 'Stop paying for empty shifts',
+					body: 'Every Monday morning, JHAX tells you which shifts have too many staff for the expected customers — before the week starts. Most restaurants save ₹24,900–₹66,400 every week just from this.',
+					tag: 'Saves ₹33K+ every week',
+					example: 'Found: Tuesday lunch overstaffed · ₹28,220 saved'
+				},
+				{
+					icon: Building2,
+					bg: '#2563EB',
+					title: 'See all your outlets at once',
+					body: 'Running more than one location? See them all side by side. Instantly know which one needs your attention today — and why.',
+					tag: 'Built for growth',
+					example: 'Indiranagar · Bandra · Gurgaon — 3 live'
+				},
+				{
+					icon: TrendingUp,
+					bg: '#E8500A',
+					title: "Know how much you'll make next month",
+					body: "JHAX looks at your patterns and tells you where your money is heading — and gives you specific things to do right now to hit your target before it's too late.",
+					tag: 'See it coming',
+					example: 'Next month: +₹4,00,000 with the plan'
+				}
+			]
+		: [
 		{
 			icon: MessageSquare,
 			bg: '#E8500A',

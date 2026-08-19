@@ -15,6 +15,7 @@
 	import Reveal from './Reveal.svelte';
 	import ProductAskTab from './ProductAskTab.svelte';
 	import ProductMarketingTab from './ProductMarketingTab.svelte';
+	import { isIndiaRoute } from '@/siteVariant.js';
 
 	const TABS = [
 		{ key: 'dashboard', label: 'Overview', icon: LayoutDashboard },
@@ -26,34 +27,57 @@
 	];
 
 	let active = $state('dashboard');
+	const INDIA = isIndiaRoute();
 
 	// --- static data for inline tabs ---
-	const dashKpis = [
-		{ label: 'Total Money', value: '$398', delta: '-38.8%', down: true },
-		{ label: 'Tables served', value: '19', delta: '-26.9%', down: true },
-		{ label: 'Each spend', value: '$21', delta: '-4.1%', down: true },
-		{ label: 'Health Score', value: '51/100', tag: 'RED', accent: '#7C3AED' }
-	];
+	const dashKpis = INDIA
+		? [
+				{ label: 'Total Money', value: '₹33,034', delta: '-38.8%', down: true },
+				{ label: 'Tables served', value: '19', delta: '-26.9%', down: true },
+				{ label: 'Each spend', value: '₹1,743', delta: '-4.1%', down: true },
+				{ label: 'Health Score', value: '51/100', tag: 'RED', accent: '#7C3AED' }
+			]
+		: [
+				{ label: 'Total Money', value: '$398', delta: '-38.8%', down: true },
+				{ label: 'Tables served', value: '19', delta: '-26.9%', down: true },
+				{ label: 'Each spend', value: '$21', delta: '-4.1%', down: true },
+				{ label: 'Health Score', value: '51/100', tag: 'RED', accent: '#7C3AED' }
+			];
 	const dashHealth = [
 		{ l: 'Money growth', v: 7 },
 		{ l: 'People coming back', v: 100 },
 		{ l: 'Staff efficiency', v: 82 }
 	];
 	const dashQuickAsks = ['Why is money down?', 'Who are my regulars?', 'Do I have too many staff?'];
-	const dashAnswers = {
-		'Why is money down?': {
-			head: 'Money is down 38.8% — it&apos;s not fewer people coming in, it&apos;s <span class="text-orange">your regulars stopped coming back</span>.',
-			body: '63 of your best customers haven&apos;t returned in 30 days. Bringing back 20% of them recovers ~<span class="text-cream">$368</span> this week. One tap sends the win-back message to WhatsApp + SMS.'
-		},
-		'Who are my regulars?': {
-			head: 'Your top 20 regulars drive <span class="text-orange">34% of your revenue</span> — and 3 are slipping.',
-			body: 'Quinn Reyes leads at <span class="text-cream">$1,141</span> across 9 visits. 3 regulars haven&apos;t been in for 21+ days — reach out before they&apos;re gone for good.'
-		},
-		'Do I have too many staff?': {
-			head: 'Yes — <span class="text-orange">Tuesday lunch is 42% overstaffed</span>, every single week.',
-			body: 'Trimming 1 cook + 1 server on Tue 11–2 saves <span class="text-cream">$340/week</span> ($17,680/yr) with zero impact on service.'
-		}
-	};
+	const dashAnswers = INDIA
+		? {
+				'Why is money down?': {
+					head: 'Revenue is down 38.8% — it&apos;s not fewer people coming in, it&apos;s <span class="text-orange">your regulars stopped coming back</span>.',
+					body: '63 of your best customers haven&apos;t returned in 30 days. Bringing back 20% of them recovers ~<span class="text-cream">₹30,544</span> this week. One tap sends the win-back message to WhatsApp + SMS.'
+				},
+				'Who are my regulars?': {
+					head: 'Your top 20 regulars drive <span class="text-orange">34% of your revenue</span> — and 3 are slipping.',
+					body: 'Aarav Malhotra leads at <span class="text-cream">₹94,703</span> across 9 visits. 3 regulars haven&apos;t been in for 21+ days — reach out before they&apos;re gone for good.'
+				},
+				'Do I have too many staff?': {
+					head: 'Yes — <span class="text-orange">Tuesday lunch is 42% overstaffed</span>, every single week.',
+					body: 'Trimming 1 cook + 1 server on Tue 11–2 saves <span class="text-cream">₹28,220/week</span> (₹14,67,440/yr) with zero impact on service.'
+				}
+			}
+		: {
+				'Why is money down?': {
+					head: 'Money is down 38.8% — it&apos;s not fewer people coming in, it&apos;s <span class="text-orange">your regulars stopped coming back</span>.',
+					body: '63 of your best customers haven&apos;t returned in 30 days. Bringing back 20% of them recovers ~<span class="text-cream">$368</span> this week. One tap sends the win-back message to WhatsApp + SMS.'
+				},
+				'Who are my regulars?': {
+					head: 'Your top 20 regulars drive <span class="text-orange">34% of your revenue</span> — and 3 are slipping.',
+					body: 'Quinn Reyes leads at <span class="text-cream">$1,141</span> across 9 visits. 3 regulars haven&apos;t been in for 21+ days — reach out before they&apos;re gone for good.'
+				},
+				'Do I have too many staff?': {
+					head: 'Yes — <span class="text-orange">Tuesday lunch is 42% overstaffed</span>, every single week.',
+					body: 'Trimming 1 cook + 1 server on Tue 11–2 saves <span class="text-cream">$340/week</span> ($17,680/yr) with zero impact on service.'
+				}
+			};
 	let activeAsk = $state('Why is money down?');
 	let asking = $state(false);
 	let askTimer;
@@ -70,37 +94,72 @@
 		{ l: 'Not back', v: '10', c: '#DC2626' },
 		{ l: 'Come-back Rate', v: '68%', c: '#F5F2ED' }
 	];
-	const custVips = [
-		{ n: 'Quinn Reyes', v: '$1,141', visits: '9 visits' },
-		{ n: 'Casey Lopez', v: '$1,066', visits: '8 visits' },
-		{ n: 'Sam Nguyen', v: '$823', visits: '7 visits' }
-	];
-	const custRisks = [
-		{ n: 'Morgan Singh', v: '$829', last: '31 days ago' },
-		{ n: 'Logan Garcia', v: '$486', last: '24 days ago' },
-		{ n: 'Elliot Nguyen', v: '$354', last: '22 days ago' }
-	];
+	const custVips = INDIA
+		? [
+				{ n: 'Aarav Malhotra', v: '₹94,703', visits: '9 visits' },
+				{ n: 'Riya Shah', v: '₹88,478', visits: '8 visits' },
+				{ n: 'Kabir Mehta', v: '₹68,309', visits: '7 visits' }
+			]
+		: [
+				{ n: 'Quinn Reyes', v: '$1,141', visits: '9 visits' },
+				{ n: 'Casey Lopez', v: '$1,066', visits: '8 visits' },
+				{ n: 'Sam Nguyen', v: '$823', visits: '7 visits' }
+			];
+	const custRisks = INDIA
+		? [
+				{ n: 'Devika Singh', v: '₹68,807', last: '31 days ago' },
+				{ n: 'Arjun Kapoor', v: '₹40,338', last: '24 days ago' },
+				{ n: 'Neha Verma', v: '₹29,390', last: '22 days ago' }
+			]
+		: [
+				{ n: 'Morgan Singh', v: '$829', last: '31 days ago' },
+				{ n: 'Logan Garcia', v: '$486', last: '24 days ago' },
+				{ n: 'Elliot Nguyen', v: '$354', last: '22 days ago' }
+			];
 
-	const menuProfitable = [
-		{ n: 'BLT Sandwich', v: '$1,083', m: '72%' },
-		{ n: 'Caesar Salad', v: '$779', m: '68%' },
-		{ n: 'Cheeseburger', v: '$751', m: '64%' }
-	];
-	const menuUnder = [
-		{ n: 'Iced Latte', v: '$452', m: '22%' },
-		{ n: 'Chocolate Cake', v: '$539', m: '31%' }
-	];
+	const menuProfitable = INDIA
+		? [
+				{ n: 'Paneer Tikka Platter', v: '₹89,723', m: '72%' },
+				{ n: 'Butter Chicken Bowl', v: '₹64,534', m: '68%' },
+				{ n: 'Loaded Kathi Roll', v: '₹62,212', m: '64%' }
+			]
+		: [
+				{ n: 'BLT Sandwich', v: '$1,083', m: '72%' },
+				{ n: 'Caesar Salad', v: '$779', m: '68%' },
+				{ n: 'Cheeseburger', v: '$751', m: '64%' }
+			];
+	const menuUnder = INDIA
+		? [
+				{ n: 'Cold Coffee', v: '₹37,490', m: '22%' },
+				{ n: 'Chocolate Pastry', v: '₹44,711', m: '31%' }
+			]
+		: [
+				{ n: 'Iced Latte', v: '$452', m: '22%' },
+				{ n: 'Chocolate Cake', v: '$539', m: '31%' }
+			];
 
-	const laborMetrics = [
-		{ l: 'Staff cost %', v: '38%', sub: 'Target 30%', c: '#DC2626', bad: true },
-		{ l: 'Overtime Hours', v: '14 hrs', sub: 'This week', c: '#DC2626', bad: true },
-		{ l: 'Money per Staff', v: '$43/hr', sub: 'Above avg', c: '#22C55E', bad: false }
-	];
-	const laborShifts = [
-		{ name: 'Tue Lunch — Kitchen', staff: '3 cooks', need: '2', waste: '$142' },
-		{ name: 'Wed Dinner — Front', staff: '5 servers', need: '4', waste: '$96' },
-		{ name: 'Sat Lunch — Bar', staff: '2 bar', need: '1', waste: '$78' }
-	];
+	const laborMetrics = INDIA
+		? [
+				{ l: 'Staff cost %', v: '38%', sub: 'Target 30%', c: '#DC2626', bad: true },
+				{ l: 'Overtime Hours', v: '14 hrs', sub: 'This week', c: '#DC2626', bad: true },
+				{ l: 'Money per Staff', v: '₹3,569/hr', sub: 'Above avg', c: '#22C55E', bad: false }
+			]
+		: [
+				{ l: 'Staff cost %', v: '38%', sub: 'Target 30%', c: '#DC2626', bad: true },
+				{ l: 'Overtime Hours', v: '14 hrs', sub: 'This week', c: '#DC2626', bad: true },
+				{ l: 'Money per Staff', v: '$43/hr', sub: 'Above avg', c: '#22C55E', bad: false }
+			];
+	const laborShifts = INDIA
+		? [
+				{ name: 'Tue Lunch — Kitchen', staff: '3 cooks', need: '2', waste: '₹11,786' },
+				{ name: 'Wed Dinner — Front', staff: '5 servers', need: '4', waste: '₹7,968' },
+				{ name: 'Sat Lunch — Bar', staff: '2 bar', need: '1', waste: '₹6,474' }
+			]
+		: [
+				{ name: 'Tue Lunch — Kitchen', staff: '3 cooks', need: '2', waste: '$142' },
+				{ name: 'Wed Dinner — Front', staff: '5 servers', need: '4', waste: '$96' },
+				{ name: 'Sat Lunch — Bar', staff: '2 bar', need: '1', waste: '$78' }
+			];
 
 	const kpiSlug = (l) => l.toLowerCase().replace(/\s+/g, '-');
 </script>
@@ -137,10 +196,10 @@
 					<span class="w-2.5 h-2.5 rounded-full" style="background: #242424;"></span>
 					<span class="w-2.5 h-2.5 rounded-full" style="background: #242424;"></span>
 				</div>
-				<div class="font-mono text-[11px] text-ghost">jhax.ai · West Village</div>
+				<div class="font-mono text-[11px] text-ghost">jhax.ai · {INDIA ? 'Indiranagar' : 'West Village'}</div>
 				<div class="ml-auto flex items-center gap-2 font-mono text-[10px] text-muted-warm">
 					<span class="w-1.5 h-1.5 rounded-full dot-pulse" style="background: #16A34A;"></span>
-					Square · Live
+					{INDIA ? 'POS · Live' : 'Square · Live'}
 				</div>
 			</div>
 
@@ -476,11 +535,11 @@
 										Bistro Deal
 									</div>
 									<div class="text-muted-warm text-[15px] mt-1">
-										Cheeseburger + Truffle Fries + Iced Latte
+										{INDIA ? 'Paneer Burger + Peri Peri Fries + Cold Coffee' : 'Cheeseburger + Truffle Fries + Iced Latte'}
 									</div>
 									<div class="flex flex-wrap items-center gap-4 mt-3">
 										<div class="text-cream font-display" style="font-size: 30px; letter-spacing: -0.03em;">
-											$21.99
+											{INDIA ? '₹799' : '$21.99'}
 										</div>
 										<div
 											class="font-mono text-[11px] px-2 py-1 rounded-full"
@@ -537,7 +596,7 @@
 											class="font-mono text-[10px] px-2 py-0.5 rounded-full"
 											style="background: rgba(220,38,38,0.12); color: #F87171; border: 1px solid rgba(220,38,38,0.3);"
 										>
-											$316 waste
+											{INDIA ? '₹26,230 waste' : '$316 waste'}
 										</div>
 									</div>
 									<ul class="space-y-3">
@@ -574,7 +633,7 @@
 		<div
 			class="mt-6 flex flex-wrap justify-between gap-4 font-mono text-[10px] uppercase tracking-[0.22em] text-ghost px-2"
 		>
-			<span>fig. 02 — live screen, west village · nov 24</span>
+			<span>{INDIA ? 'fig. 02 — live screen, indiranagar · aug 18' : 'fig. 02 — live screen, west village · nov 24'}</span>
 			<span>frame 001 / 003</span>
 		</div>
 	</div>

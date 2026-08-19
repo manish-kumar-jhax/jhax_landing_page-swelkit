@@ -4,6 +4,7 @@
 	import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-svelte';
 	import Reveal from './Reveal.svelte';
 	import { saveLead } from '@/leads.js';
+	import { isIndiaRoute } from '@/siteVariant.js';
 
 	let email = $state('');
 	let status = $state('idle'); // idle | loading | success | error
@@ -81,8 +82,10 @@
 	// The input only ever signals state through its border — the actual error and
 	// success copy lives in its own banner below the form, never in the placeholder.
 	let borderColor = $derived(status === 'error' ? '#DC2626' : 'rgba(255,255,255,0.10)');
-
-	const trust = ['No credit card', 'No commitment', 'See a real restaurant live', '20 minutes'];
+	const INDIA = isIndiaRoute();
+	const trust = INDIA
+		? ['No credit card', 'No commitment', 'See a real India restaurant live', '20 minutes']
+		: ['No credit card', 'No commitment', 'See a real restaurant live', '20 minutes'];
 </script>
 
 <section id="book-demo" data-testid="final-cta" class="relative py-28 md:py-40 overflow-hidden">
@@ -101,7 +104,7 @@
 			style="background: rgba(232,80,10,0.08); border: 1px solid rgba(232,80,10,0.3); color: #FF6B2B; padding: 8px 16px;"
 		>
 			<span class="w-1.5 h-1.5 rounded-full dot-pulse" style="background: #E8500A;"></span>
-			The last thing
+			{INDIA ? 'One last thing' : 'The last thing'}
 		</Reveal>
 
 		<Reveal
@@ -123,8 +126,9 @@
 			class="mt-8 mx-auto text-muted-warm"
 			style="max-width: 620px; font-size: 18px; font-weight: 300; line-height: 1.6;"
 		>
-			Book a free 20-minute call. We&apos;ll show JHAX working on a real restaurant — then tell you
-			what it would find in yours.
+			{INDIA
+				? 'Book a free 20-minute call. We&apos;ll show JHAX working on a real India restaurant — then tell you what it would find in yours.'
+				: 'Book a free 20-minute call. We&apos;ll show JHAX working on a real restaurant — then tell you what it would find in yours.'}
 		</p>
 
 		<form

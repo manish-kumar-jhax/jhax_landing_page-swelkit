@@ -1,50 +1,95 @@
 <script>
 	import { ArrowRight } from 'lucide-svelte';
+	import { isIndiaRoute } from '@/siteVariant.js';
 
 	// Each goal drives a fully tailored promotional banner + ROI readout, so
 	// picking a chip visibly regenerates the promotion.
-	const PROMOS = [
-		{
-			goal: 'Bring back customers who stopped coming',
-			badge: '20% OFF',
-			eyebrow: 'We miss you — come back this week',
-			headline: ['Your favorite table', 'is waiting.'],
-			offer: '20% off your next visit · Valid this week only',
-			cta: 'Send win-back offer',
-			gradient: 'linear-gradient(135deg, #1a0d05 0%, #E8500A 55%, #FF6B2B 100%)',
-			roi: { made: '$340 in 48 hours', people: '8 people came back', stats: [['Sent to', '127'], ['Opened', '89'], ['Redeemed', '8'], ['Recovered', '$340']] }
-		},
-		{
-			goal: 'Fill Tuesday lunch',
-			badge: 'TUE ONLY',
-			eyebrow: 'Tuesday just got tastier',
-			headline: ['Lunch for two,', 'just $24.'],
-			offer: 'Every Tuesday 11–2 · Dine-in only',
-			cta: 'Launch Tuesday deal',
-			gradient: 'linear-gradient(135deg, #05141a 0%, #0D9488 55%, #22C55E 100%)',
-			roi: { made: '$512 in one Tuesday', people: '23 extra covers', stats: [['Sent to', '210'], ['Opened', '140'], ['Redeemed', '23'], ['Recovered', '$512']] }
-		},
-		{
-			goal: 'Push high-margin deal',
-			badge: '2-FOR-1',
-			eyebrow: "This week's chef's special",
-			headline: ['Wagyu Sliders —', '2 for 1.'],
-			offer: '68% margin favorite · While they last',
-			cta: 'Push this deal',
-			gradient: 'linear-gradient(135deg, #1a0d05 0%, #D97706 55%, #FF6B2B 100%)',
-			roi: { made: '$1,412 in 5 days', people: '47 sliders sold', stats: [['Sent to', '180'], ['Opened', '120'], ['Redeemed', '47'], ['Recovered', '$1,412']] }
-		},
-		{
-			goal: 'Promote new menu item',
-			badge: 'NEW',
-			eyebrow: 'Fresh on the menu',
-			headline: ['Meet the', 'Truffle Melt.'],
-			offer: 'New this week · First 50 get it free',
-			cta: 'Announce new item',
-			gradient: 'linear-gradient(135deg, #1a0d05 0%, #E8500A 55%, #FFB07A 100%)',
-			roi: { made: '$688 in the first week', people: '50 people tried it', stats: [['Sent to', '260'], ['Opened', '175'], ['Redeemed', '50'], ['Recovered', '$688']] }
-		}
-	];
+	const INDIA = isIndiaRoute();
+	const PROMOS = INDIA
+		? [
+				{
+					goal: 'Bring back customers who stopped coming',
+					badge: '20% OFF',
+					eyebrow: 'We miss you — come back this week',
+					headline: ['Your favorite table', 'is waiting.'],
+					offer: '20% off your next visit · Valid this week only',
+					cta: 'Send win-back offer',
+					gradient: 'linear-gradient(135deg, #1a0d05 0%, #E8500A 55%, #FF6B2B 100%)',
+					roi: { made: '₹28,220 in 48 hours', people: '8 people came back', stats: [['Sent to', '127'], ['Opened', '89'], ['Redeemed', '8'], ['Recovered', '₹28,220']] }
+				},
+				{
+					goal: 'Fill Tuesday lunch',
+					badge: 'TUE ONLY',
+					eyebrow: 'Tuesday just got tastier',
+					headline: ['Lunch for two,', 'just ₹999.'],
+					offer: 'Every Tuesday 11–2 · Dine-in only',
+					cta: 'Launch Tuesday deal',
+					gradient: 'linear-gradient(135deg, #05141a 0%, #0D9488 55%, #22C55E 100%)',
+					roi: { made: '₹42,496 in one Tuesday', people: '23 extra covers', stats: [['Sent to', '210'], ['Opened', '140'], ['Redeemed', '23'], ['Recovered', '₹42,496']] }
+				},
+				{
+					goal: 'Push high-margin deal',
+					badge: '2-FOR-1',
+					eyebrow: "This week's chef's special",
+					headline: ['Paneer Tikka Platters —', '2 for 1.'],
+					offer: '68% margin favorite · While they last',
+					cta: 'Push this deal',
+					gradient: 'linear-gradient(135deg, #1a0d05 0%, #D97706 55%, #FF6B2B 100%)',
+					roi: { made: '₹1,17,196 in 5 days', people: '47 platters sold', stats: [['Sent to', '180'], ['Opened', '120'], ['Redeemed', '47'], ['Recovered', '₹1,17,196']] }
+				},
+				{
+					goal: 'Promote new menu item',
+					badge: 'NEW',
+					eyebrow: 'Fresh on the menu',
+					headline: ['Meet the', 'Truffle Kulcha.'],
+					offer: 'New this week · First 50 get it free',
+					cta: 'Announce new item',
+					gradient: 'linear-gradient(135deg, #1a0d05 0%, #E8500A 55%, #FFB07A 100%)',
+					roi: { made: '₹57,104 in the first week', people: '50 people tried it', stats: [['Sent to', '260'], ['Opened', '175'], ['Redeemed', '50'], ['Recovered', '₹57,104']] }
+				}
+			]
+		: [
+				{
+					goal: 'Bring back customers who stopped coming',
+					badge: '20% OFF',
+					eyebrow: 'We miss you — come back this week',
+					headline: ['Your favorite table', 'is waiting.'],
+					offer: '20% off your next visit · Valid this week only',
+					cta: 'Send win-back offer',
+					gradient: 'linear-gradient(135deg, #1a0d05 0%, #E8500A 55%, #FF6B2B 100%)',
+					roi: { made: '$340 in 48 hours', people: '8 people came back', stats: [['Sent to', '127'], ['Opened', '89'], ['Redeemed', '8'], ['Recovered', '$340']] }
+				},
+				{
+					goal: 'Fill Tuesday lunch',
+					badge: 'TUE ONLY',
+					eyebrow: 'Tuesday just got tastier',
+					headline: ['Lunch for two,', 'just $24.'],
+					offer: 'Every Tuesday 11–2 · Dine-in only',
+					cta: 'Launch Tuesday deal',
+					gradient: 'linear-gradient(135deg, #05141a 0%, #0D9488 55%, #22C55E 100%)',
+					roi: { made: '$512 in one Tuesday', people: '23 extra covers', stats: [['Sent to', '210'], ['Opened', '140'], ['Redeemed', '23'], ['Recovered', '$512']] }
+				},
+				{
+					goal: 'Push high-margin deal',
+					badge: '2-FOR-1',
+					eyebrow: "This week's chef's special",
+					headline: ['Wagyu Sliders —', '2 for 1.'],
+					offer: '68% margin favorite · While they last',
+					cta: 'Push this deal',
+					gradient: 'linear-gradient(135deg, #1a0d05 0%, #D97706 55%, #FF6B2B 100%)',
+					roi: { made: '$1,412 in 5 days', people: '47 sliders sold', stats: [['Sent to', '180'], ['Opened', '120'], ['Redeemed', '47'], ['Recovered', '$1,412']] }
+				},
+				{
+					goal: 'Promote new menu item',
+					badge: 'NEW',
+					eyebrow: 'Fresh on the menu',
+					headline: ['Meet the', 'Truffle Melt.'],
+					offer: 'New this week · First 50 get it free',
+					cta: 'Announce new item',
+					gradient: 'linear-gradient(135deg, #1a0d05 0%, #E8500A 55%, #FFB07A 100%)',
+					roi: { made: '$688 in the first week', people: '50 people tried it', stats: [['Sent to', '260'], ['Opened', '175'], ['Redeemed', '50'], ['Recovered', '$688']] }
+				}
+			];
 
 	let goal = $state(0);
 	let promo = $derived(PROMOS[goal]);
@@ -83,7 +128,7 @@
 				Banner preview · Generated in 3s
 			</div>
 			<div class="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-warm">
-				WhatsApp · SMS · IG
+				{INDIA ? 'WhatsApp · SMS · Instagram' : 'WhatsApp · SMS · IG'}
 			</div>
 		</div>
 		{#key goal}
